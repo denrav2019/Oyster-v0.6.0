@@ -1,6 +1,6 @@
 # Oyster Programming Language
 
-![Version](https://img.shields.io/badge/version-0.5.1-blue)
+![Version](https://img.shields.io/badge/version-0.6.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 * Oyster is a minimalistic, Perl-inspired scripting programming language with a focus on simplicity and performance.
@@ -67,7 +67,7 @@ $result = m.sin(&m.PI / 2)
 print("sin(&m.PI/2) = " + $result)
 ```
 
-# Oyster Language v0.5.1
+# Oyster Language v0.6.0
 
 ### Быстрый старт
 
@@ -1320,7 +1320,7 @@ MIT License - see the LICENSE file for details.
 - The open source community / сообществу открытого ПО
 
 ## История релизов Oyster
-Oyster 0.6.0:
+## Oyster 0.6.0 - встроенные функции для работы с USB и RS232, 
 
 ✅ Раздельные таблицы переменных
 
