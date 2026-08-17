@@ -374,17 +374,17 @@ print("Hello, World!")
 #### Math / Математические
 Все математические функции работают с числами типа `V_NUMBER` (fixed-point 64.32).
 * [abs(x)](#absx)
-* sign(x)
-* inv(x)
-* int(x)
-* frac(x)
-* sqrt(x)
-* exp(x)
-* ln(x)
-* log(x)
-* inc(x)
-* dec(x)
-* round(x, n, mode)
+* [sign(x)](#signx)
+* [inv(x)](#invx)
+* [int(x)](#intx)
+* [frac(x)](#fracx)
+* [sqrt(x)](#sqrtx)
+* [exp(x)](#expx)
+* [ln(x)](#lnx)
+* [log(x)](#logx)
+* [inc(x)](#incx)
+* [dec(x)](#decx)
+* [round(x, n, mode)](#roundx-n-mode)
 
 ##### abs(x)
 Абсолютное значение
@@ -511,27 +511,27 @@ print(round(2.55, 1, 2))   # 2.5
 ```
 
 #### String / Строковые
-* len(s)
-* index(s, sub, pos)
-* rindex(s, sub, pos)
-* substr(s, off, len, repl)
-* chomp(s)
-* chop(s)
-* lc(s)
-* uc(s)
-* lcfirst(s)
-* ucfirst(s)
-* join(sep, arr)
-* split(pat, s)
-* chr(n)
-* ord(c)
-* strcmp(s1, s2)
-* setstr(buf, offset, str)
-* getstr(buf, offset, maxlen)
-* writestr(fh, str)
-* bytearray(n)
-* readstr(fh)
-* gets()
+* [len(s)](#lens)
+* [index(s, sub, pos)](#indexs-sub-pos)
+* [rindex(s, sub, pos)](#rindexs-sub-pos)
+* [substr(s, off, len, repl)](#substrs-off-len-repl)
+* [chomp(s)](#chomps)
+* [chop(s)](#chops)
+* [lc(s)](#lcs)
+* [uc(s)](#ucs)
+* [lcfirst(s)](#lcfirsts)
+* [ucfirst(s)](#ucfirsts)
+* [join(sep, arr)](#joinsep-arr)
+* [split(pat, s)](#splitpat-s)
+* [chr(n)](#chrn)
+* [ord(c)](#ordc)
+* [strcmp(s1, s2)](#strcmps1-s2)
+* [setstr(buf, offset, str)](#setstrbuf-offset-str)
+* [getstr(buf, offset, maxlen)](#getstr-offset-maxlen)
+* [writestr(fh, str)](#writestrfh-str)
+* [bytearray(n)](#bytearrayn)
+* [readstr(fh)](#readstrfh)
+* [gets()](#gets)
 
 ##### len(s)
 Длина строки. 
@@ -1090,18 +1090,18 @@ $check = undef($x) # проверить, undef ли $x (вернёт 1)
 #### File / Файловые
 Файловые функции работают с файловыми дескрипторами, которые возвращаются функцией `fopen()` в виде целых чисел.
 
-* fopen(name, mode)
-* fclose(fh)
-* freadline(fh)
-* fread(fh, len)
-* fprint(fh, data)
-* fseek(fh, offset, whence)
-* ftell(fh)
-* feof(fh)
-* sysread(fh, len)
-* syswrite(fh, data)
-* frename(old, new)
-* funlink(file)
+* [fopen(name, mode)](#fopenname-mode)
+* [fclose(fh)](#fclosefh)
+* [freadline(fh)](#freadlinefh)
+* [fread(fh, len)](#freadfh-len)
+* [fprint(fh, data)](#fprintfh-data)
+* [fseek(fh, offset, whence)](#fseekfh-offset-whence)
+* [ftell(fh)](#ftellfh)
+* [feof(fh)](#feoffh)
+* [sysread(fh, len)](#sysreadfh-len)
+* [syswrite(fh, data)](#syswritefh-data)
+* [frename(old, new)](#frenameold-new)
+* [funlink(file)](#funlinkfile)
 
 ##### fopen(name, mode)
 Открыть файл. 
@@ -1490,6 +1490,11 @@ while(!undef($line)) {
 
 sockclose($sock)
 ```
+## Stdlib
+Библиотека станлартных модулей. Содержит модули
+* tk.osm — базовые функции Tcl/Tk
+* ui.osm — элементы: окна, кнопки, таблицы, деревья
+* db.osm — поддержка встроенной БД OysterDB
 
 ## OysterDB v0.1.0
 * Объектная БД с фиксированной длиной записей (64 байта)
