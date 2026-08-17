@@ -1,0 +1,25 @@
+print("=== Serial port test ===")
+
+# Пробуем открыть несуществующий порт (должен вернуть -1)
+$fh = serial_open("/dev/ttyUSB99", 9600, 8, 0, 1)
+print("Open non-existent port:")
+print($fh)
+
+# Пробуем открыть реальный порт (если есть /dev/ttyS0 или /dev/ttyUSB0)
+$fh2 = serial_open("/dev/ttyS0", 9600, 8, 0, 1)
+print("Open /dev/ttyS0:")
+print($fh2)
+
+if($fh2 >= 0) {
+    # Читаем с таймаутом 100 мс (должен вернуть пустую строку)
+    $data = serial_read($fh2, 16, 100)
+    print("Read data:")
+    print($data)
+
+    # Закрываем
+    $result = serial_close($fh2)
+    print("Close result:")
+    print($result)
+}
+
+print("=== Done ===")

@@ -1,0 +1,107 @@
+# ============================================================
+# ui.osm — элементы GUI для Oyster (без счётчиков)
+# ============================================================
+
+use "stdlib/tk" as tk
+
+# Окно
+fun ui_window($tk, $title, $width, $height) {
+    tk.tk_send($tk, "wm title . " + $title)
+    tk.tk_send($tk, "wm geometry . " + $width + "x" + $height)
+    return 1
+}
+
+# Кнопка
+fun ui_button($tk, $id, $text, $command) {
+    tk.tk_send($tk, "button .b" + $id + " -text " + $text + " -command {puts " + $command + "}")
+    tk.tk_send($tk, "pack .b" + $id + " -padx 5 -pady 5")
+    return $id
+}
+
+# Метка
+fun ui_label($tk, $id, $text) {
+    tk.tk_send($tk, "label .l" + $id + " -text " + $text)
+    tk.tk_send($tk, "pack .l" + $id + " -padx 5 -pady 5")
+    return $id
+}
+
+# Поле ввода
+fun ui_entry($tk, $id) {
+    tk.tk_send($tk, "entry .e" + $id)
+    tk.tk_send($tk, "pack .e" + $id + " -padx 5 -pady 5")
+    return $id
+}
+
+# Таблица
+fun ui_table($tk, $id, $columns) {
+    my $cols = ""
+    my $i = 0
+    while($i < len($columns)) {
+        $cols = $cols + @columns[$i] + " "
+        $i = $i + 1
+    }
+
+    tk.tk_send($tk, "ttk::treeview .t" + $id + " -columns {" + $cols + "} -show headings")
+
+    $i = 0
+    while($i < len($columns)) {
+        my $col = @columns[$i]
+        tk.tk_send($tk, ".t" + $id + " heading " + $col + " -text " + $col)
+        tk.tk_send($tk, ".t" + $id + " column " + $col + " -width 150")
+        $i = $i + 1
+    }
+
+    tk.tk_send($tk, "pack .t" + $id + " -padx 10 -pady 10")
+    return $id
+}
+
+# Добавить строку в таблицу
+fun ui_table_insert($tk, $table_id, @values) {
+    my $vals = ""
+    my $i = 0
+    while($i < len(@values)) {
+        $vals = $vals + @values[$i] + " "
+        $i = $i + 1
+    }
+    tk.tk_send($tk, ".t" + $table_id + " insert {} end -values {" + $vals + "}")
+    return 1
+}
+
+# Дерево
+fun ui_tree($tk, $id) {
+    tk.tk_send($tk, "ttk::treeview .tr" + $id + " -show tree")
+    tk.tk_send($tk, "pack .tr" + $id + " -padx 10 -pady 10")
+    return $id
+}
+
+# Добавить узел в дерево
+fun ui_tree_insert($tk, $tree_id, $parent, $node_id, $text) {
+    if($parent == "") {
+        tk.tk_send($tk, ".tr" + $tree_id + " insert {} end -id " + $node_id + " -text " + $text)
+    } else {
+        tk.tk_send($tk, ".tr" + $tree_id + " insert " + $parent + " end -id " + $node_id + " -text " + $text)
+    }
+    return 1
+}
+
+# Раскрыть узел
+fun ui_tree_open($tk, $tree_id, $node_id) {
+    tk.tk_send($tk, ".tr" + $tree_id + " item " + $node_id + " -open true")
+    return 1
+}
+
+# События
+fun ui_wait_event($tk, $timeout_ms) {
+    return tk.tk_wait_event($tk, $timeout_ms)
+}
+
+export ui_window
+export ui_button
+export ui_label
+export ui_entry
+export ui_table
+export ui_table_insert
+export ui_tree
+export ui_tree_insert
+export ui_tree_open
+export ui_wait_event

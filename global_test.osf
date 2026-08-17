@@ -1,0 +1,4 @@
+$z = 100
+fun test2($x) { $z = $x; return $z }
+test2(200)
+print($z)

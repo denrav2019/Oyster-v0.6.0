@@ -1,0 +1,38 @@
+use "stdlib/tk" as tk
+
+$tk = tk.tk_init()
+print("Tk index:")
+print($tk)
+
+if($tk >= 0) {
+    # Создаём окно
+    tk.tk_send($tk, "wm title . Tree_Test")
+    tk.tk_send($tk, "wm geometry . 600x400")
+
+    # Создаём дерево
+    tk.tk_send($tk, "ttk::treeview .t2 -columns {type} -show tree")
+    tk.tk_send($tk, ".t2 heading #0 -text Items")
+    tk.tk_send($tk, ".t2 heading type -text Type")
+
+    # Корневые элементы
+    tk.tk_send($tk, ".t2 insert {} end -id root1 -text Товары -values {group}")
+    tk.tk_send($tk, ".t2 insert {} end -id root2 -text Услуги -values {group}")
+
+    # Дочерние элементы
+    tk.tk_send($tk, ".t2 insert root1 end -id item1 -text Молоко -values {item}")
+    tk.tk_send($tk, ".t2 insert root1 end -id item2 -text Хлеб -values {item}")
+    tk.tk_send($tk, ".t2 insert root2 end -id item3 -text Доставка -values {service}")
+
+    # Раскрыть первый узел
+    tk.tk_send($tk, ".t2 item root1 -open true")
+
+    tk.tk_send($tk, "pack .t2 -padx 10 -pady 10")
+    tk.tk_send($tk, "update")
+
+    # Ждём событие
+    $event = tk.tk_wait_event($tk, 5000)
+    print("Event:")
+    print($event)
+
+    tk.tk_close($tk)
+}

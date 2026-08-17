@@ -1,0 +1,5 @@
+fun test($x) {
+  my $y = $x + 1
+  return $y
+}
+print(test(41))

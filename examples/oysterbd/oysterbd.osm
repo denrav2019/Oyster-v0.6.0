@@ -1,0 +1,199 @@
+# ============================================================
+# db.osm — Oyster Object Database v0.1
+# ============================================================
+
+# Константы
+&RECORD_SIZE = 64
+&TYPE_NUMBER = 0
+&TYPE_STRING = 1
+&TYPE_OBJECT = 2
+
+# Открыть или создать БД
+fun db_open($path) {
+    %db = ()
+
+    $files = ("base", "classes", "property", "object", "values", "data")
+    for $f in $files {
+        $fh = fopen($path + "/" + $f + ".dat", "ab+")
+        fclose($fh)
+        %db[$f] = fopen($path + "/" + $f + ".dat", "rb+")
+    }
+
+    %db["path"] = $path
+    return %db
+}
+
+# Закрыть БД
+fun db_close(%db) {
+    $files = ("base", "classes", "property", "object", "values", "data")
+    for $f in $files {
+        fclose(%db[$f])
+    }
+}
+
+# Получить следующий ID
+fun db_next_id(%db, $table) {
+    $fh = %db[$table]
+    fseek($fh, 0, 2)
+    $pos = ftell($fh)
+    return $pos / 64
+}
+
+# Создать класс
+fun db_create_class(%db, $name, $parent_id) {
+    $id = db_next_id(%db, "classes")
+    $fh = %db["classes"]
+    fseek($fh, $id * 64, 0)
+
+    # [id(8)][parent_id(8)][name_len(4)]
+    $buf = array(64)
+    set64($buf, 0, $id)
+    set64($buf, 8, $parent_id)
+    set32($buf, 16, len($name))
+    # Остальное — padding
+    fwrite($fh, $buf)
+
+    # Дописываем имя после заголовка
+    fprint($fh, $name)
+
+    return $id
+}
+
+# Добавить свойство классу
+fun db_add_property(%db, $class_id, $name, $type) {
+    $id = db_next_id(%db, "property")
+    $fh = %db["property"]
+    fseek($fh, $id * 64, 0)
+
+    # [id(8)][class_id(8)][type(1)][name_len(4)]
+    $buf = array(64)
+    set64($buf, 0, $id)
+    set64($buf, 8, $class_id)
+    set8($buf, 16, $type)
+    set32($buf, 17, len($name))
+    fwrite($fh, $buf)
+
+    fprint($fh, $name)
+
+    return $id
+}
+
+# Получить свойства класса (включая родительские)
+fun db_get_properties(%db, $class_id) {
+    @result = ()
+    $fh = %db["property"]
+
+    # Собираем иерархию классов
+    @classes = ()
+    $cid = $class_id
+    while($cid >= 0) {
+        hadd(@classes, $cid)
+        $cid = db_get_parent(%db, $cid)
+    }
+
+    # Читаем все properties
+    $pos = 0
+    fseek($fh, 0, 0)
+    $count = db_next_id(%db, "property")
+
+    $i = 0
+    while($i < $count) {
+        fseek($fh, $i * 64, 0)
+        $buf = fread($fh, 64)
+
+        $prop_id = get64($buf, 0)
+        $prop_class = get64($buf, 8)
+        $prop_type = get8($buf, 16)
+        $name_len = get32($buf, 17)
+
+        # Проверяем, принадлежит ли свойство нашему классу или родителю
+        for $c in @classes {
+            if($prop_class == $c) {
+                $name = fread($fh, $name_len)
+                %prop = ()
+                %prop["id"] = $prop_id
+                %prop["name"] = $name
+                %prop["type"] = $prop_type
+                hadd(@result, %prop)
+            }
+        }
+
+        inc $i
+    }
+
+    return @result
+}
+
+# Получить родительский класс
+fun db_get_parent(%db, $class_id) {
+    if($class_id <= 0) { return -1 }
+    $fh = %db["classes"]
+    fseek($fh, $class_id * 64, 0)
+    $buf = fread($fh, 64)
+    $parent = get64($buf, 8)
+    return $parent
+}
+
+# Вставить объект
+fun db_insert(%db, $class_id, %values) {
+    $obj_id = db_next_id(%db, "object")
+
+    # Запись в object.dat: [id(8)][class_id(8)]
+    $fh = %db["object"]
+    fseek($fh, $obj_id * 64, 0)
+    $buf = array(64)
+    set64($buf, 0, $obj_id)
+    set64($buf, 8, $class_id)
+    fwrite($fh, $buf)
+
+    # Получаем свойства класса
+    @props = db_get_properties(%db, $class_id)
+
+    # Записываем значения
+    $val_fh = %db["values"]
+    for $prop in @props {
+        $prop_name = $prop["name"]
+        $prop_id = $prop["id"]
+        $prop_type = $prop["type"]
+        $value = %values[$prop_name]
+
+        $val_id = db_next_id(%db, "values")
+        fseek($val_fh, $val_id * 64, 0)
+        $val_buf = array(64)
+        set64($val_buf, 0, $val_id)
+        set64($val_buf, 8, $obj_id)
+        set64($val_buf, 16, $prop_id)
+
+        if($prop_type == 0) {
+            set64($val_buf, 24, $value)
+        }
+        if($prop_type == 1) {
+            $data_offset = db_write_string(%db, $value)
+            set64($val_buf, 24, $data_offset)
+        }
+        if($prop_type == 2) {
+            set64($val_buf, 24, $value)
+        }
+
+        fwrite($val_fh, $val_buf)
+    }
+
+    return $obj_id
+}
+
+# Записать строку в data.dat
+fun db_write_string(%db, $str) {
+    $fh = %db["data"]
+    fseek($fh, 0, 2)
+    $offset = ftell($fh)
+    fprint($fh, $str)
+    return $offset
+}
+
+# Экспорт
+export db_open
+export db_close
+export db_create_class
+export db_add_property
+export db_get_properties
+export db_insert

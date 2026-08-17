@@ -1,0 +1,38 @@
+use "stdlib/tk" as tk
+use "stdlib/ui" as ui
+
+$tk = tk.tk_init()
+print("Tk index:")
+print($tk)
+
+if($tk >= 0) {
+    ui.ui_window($tk, "UI_Test", 600, 500)
+
+    # Кнопки с явными id
+    ui.ui_button($tk, 1, "ClickMe", "CLICKED")
+    ui.ui_label($tk, 1, "Waiting")
+
+    # Таблица
+    @columns = ("name", "price")
+    $table = ui.ui_table($tk, 1, @columns)
+
+    @row1 = ("Молоко", "95.50")
+    @row2 = ("Хлеб", "45.00")
+
+    ui.ui_table_insert($tk, $table, @row1)
+    ui.ui_table_insert($tk, $table, @row2)
+
+    # Дерево
+    $tree = ui.ui_tree($tk, 1)
+    ui.ui_tree_insert($tk, $tree, "", "root1", "Товары")
+    ui.ui_tree_insert($tk, $tree, "root1", "item1", "Молоко")
+    ui.ui_tree_open($tk, $tree, "root1")
+
+    tk.tk_send($tk, "update")
+
+    $event = ui.ui_wait_event($tk, 5000)
+    print("Event:")
+    print($event)
+
+    tk.tk_close($tk)
+}

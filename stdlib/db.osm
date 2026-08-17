@@ -1,0 +1,638 @@
+# ============================================================
+# db.osm — Oyster Object Database v0.2.0 (text-hex format)
+# ============================================================
+# Формат записей (включая \n в конце):
+#   class.dat:    [id(10)][parent_id(10)][name(30)][padding(13)][\n] = 64
+#   property.dat: [id(10)][class_id(10)][type(4)][name(30)][padding(9)][\n] = 64
+#   object.dat:   [id(18)][class_id(10)][padding(3)][\n] = 32
+#   value.dat:    [object_id(18)][property_id(10)][value(27)][padding(8)][\n] = 64
+#   data.dat:     <l:XXXX>строка<l:XXXX>строка...
+#
+# id_hex(10)  = <XXXXXXXX>       (8 hex, 32-битное)
+# id_hex(18)  = <XXXXXXXXXXXXXXXX> (16 hex, 64-битное)
+# type_hex(4) = <XX>             (2 hex)
+# value_hex(27) = <XXXXXXXXXXXXXXXX.XXXXXXXX> (64.32 idouble)
+
+# ============================================================
+# Вспомогательные функции
+# ============================================================
+# Записать строку в буфер
+fun setstr($buf, $offset, $str) {
+    my $len = len($str)
+    my $i = 0
+    while($i < $len) {
+        my $char = ord(substr($str, $i, 1))
+        my $x = set8($buf, $offset + $i, $char)
+        $i = $i + 1
+    }
+    my $x = set8($buf, $offset + $len, 0)
+}
+
+# Прочитать строку из буфера
+fun getstr($buf, $offset, $maxlen) {
+    my $s = ""
+    my $i = 0
+    while($i < $maxlen) {
+        my $char = get8($buf, $offset + $i)
+        if($char == 0) {
+            return $s
+        }
+        $s = $s + chr($char)
+        $i = $i + 1
+    }
+    return $s
+}
+
+# Записать строку в data.dat: [len(4)][строка]
+fun writestr($fh, $str) {
+    my $len = len($str)
+    my $lenbuf = bytearray(4)
+    my $x = set32($lenbuf, 0, $len)
+    syswrite($fh, $lenbuf)
+    syswrite($fh, $str)
+}
+
+# Прочитать строку из data.dat
+fun readstr($fh) {
+    my $lenbuf = sysread($fh, 4)
+    if(len($lenbuf) < 4) {
+        return ""
+    }
+    my $len = get32($lenbuf, 0)
+    if($len > 0) {
+        return sysread($fh, $len)
+    }
+    return ""
+}
+# Следующий ID из файла (количество записей)
+fun db_next_id($fh) {
+    fseek($fh, 0, 2)
+    my $pos = ftell($fh)
+    return $pos / 64
+}
+
+# Следующий ID для object.dat (записи 32 байта)
+fun db_next_obj_id($fh) {
+    fseek($fh, 0, 2)
+    my $pos = ftell($fh)
+    return $pos / 32
+}
+# Записать строку в буфер
+fun setstr($buf, $offset, $str) {
+    my $len = len($str)
+    my $i = 0
+    while($i < $len) {
+        my $char = ord(substr($str, $i, 1))
+        set8($buf, $offset + $i, $char)
+        $i = $i + 1
+    }
+    set8($buf, $offset + $len, 0)  # \0 терминатор
+}
+
+# Прочитать строку из буфера
+fun getstr($buf, $offset, $maxlen) {
+    my $s = ""
+    my $i = 0
+    while($i < $maxlen) {
+        my $char = get8($buf, $offset + $i)
+        if($char == 0) {
+            return $s
+        }
+        $s = $s + chr($char)
+        $i = $i + 1
+    }
+    return $s
+}
+
+# Записать строку в data.dat: [len(4)][строка]
+fun writestr($fh, $str) {
+    my $len = len($str)
+    my $lenbuf = bytearray(4)
+    set32($lenbuf, 0, $len)
+    syswrite($fh, $lenbuf)
+    syswrite($fh, $str)
+}
+
+# Прочитать строку из data.dat
+fun readstr($fh) {
+    my $lenbuf = sysread($fh, 4)
+    if(len($lenbuf) < 4) {
+        return ""
+    }
+    my $len = get32($lenbuf, 0)
+    if($len > 0) {
+        return sysread($fh, $len)
+    }
+    return ""
+}
+# Записать 32-битный hex id в буфер: <XXXXXXXX>
+fun set_id32($buf, $offset, $id) {
+    my $hexchars = "0123456789ABCDEF"
+    my $str = "<"
+    my $i = 7
+    while($i >= 0) {
+        my $shift = $i * 4
+        my $nibble = ($id >> $shift) & 15
+        $str = $str + substr($hexchars, $nibble, 1)
+        $i = $i - 1
+    }
+    $str = $str + ">"
+    setstr($buf, $offset, $str)
+}
+
+# Записать 64-битный hex id в буфер: <XXXXXXXXXXXXXXXX>
+fun set_id64($buf, $offset, $id) {
+    my $hexchars = "0123456789ABCDEF"
+    my $str = "<"
+    my $i = 15
+    while($i >= 0) {
+        my $shift = $i * 4
+        my $nibble = ($id >> $shift) & 15
+        $str = $str + substr($hexchars, $nibble, 1)
+        $i = $i - 1
+    }
+    $str = $str + ">"
+    setstr($buf, $offset, $str)
+}
+
+# Прочитать 32-битный hex id из буфера
+fun get_id32($buf, $offset) {
+    my $str = getstr($buf, $offset, 10)
+    my $id = 0
+    my $i = 1
+    while($i < 9) {
+        my $char = substr($str, $i, 1)
+        my $val = 0
+        if($char >= "0" and $char <= "9") {
+            $val = ord($char) - 48
+        } elseif($char >= "A" and $char <= "F") {
+            $val = ord($char) - 55
+        } elseif($char >= "a" and $char <= "f") {
+            $val = ord($char) - 87
+        }
+        $id = ($id * 16) + $val
+        $i = $i + 1
+    }
+    return $id
+}
+
+# Прочитать 64-битный hex id из буфера
+fun get_id64($buf, $offset) {
+    my $str = getstr($buf, $offset, 18)
+    my $id = 0
+    my $i = 1
+    while($i < 17) {
+        my $char = substr($str, $i, 1)
+        my $val = 0
+        if($char >= "0" and $char <= "9") {
+            $val = ord($char) - 48
+        } elseif($char >= "A" and $char <= "F") {
+            $val = ord($char) - 55
+        } elseif($char >= "a" and $char <= "f") {
+            $val = ord($char) - 87
+        }
+        $id = ($id * 16) + $val
+        $i = $i + 1
+    }
+    return $id
+}
+
+# Записать строку с padding пробелами до maxlen
+fun setstr_pad($buf, $offset, $str, $maxlen) {
+    setstr($buf, $offset, $str)
+    my $len = len($str)
+    my $i = $offset + $len + 1  # +1 для \0
+    while($i < $offset + $maxlen) {
+        set8($buf, $i, 32)  # пробел
+        $i = $i + 1
+    }
+}
+
+# Прочитать строку с padding (останавливается на \0)
+fun getstr_pad($buf, $offset, $maxlen) {
+    return getstr($buf, $offset, $maxlen)
+}
+
+# ============================================================
+# Инициализация БД
+# ============================================================
+
+fun db_init(%db) {
+    my $fh = %db["class"]
+    my $count = db_next_id($fh)
+
+    if($count > 0) {
+        return 0
+    }
+
+    # Создаём корневой класс
+    my $root_id = db_create_class(%db, "root", 0)
+
+    # Создаём системные классы
+    my $sys_id = db_create_class(%db, "system", $root_id)
+    my $num_id = db_create_class(%db, "number", $sys_id)
+    my $text_id = db_create_class(%db, "text", $sys_id)
+
+    # Создаём пользовательские классы
+    my $user_id = db_create_class(%db, "user_defined", $root_id)
+    my $item_id = db_create_class(%db, "item", $user_id)
+    my $group_id = db_create_class(%db, "itemgroup", $user_id)
+
+    # Добавляем свойства для number и text
+    my $x = db_add_property(%db, $num_id, "value", 0)
+    $x = db_add_property(%db, $text_id, "value", 1)
+
+    # Свойства для item
+    $x = db_add_property(%db, $item_id, "name", 1)
+    $x = db_add_property(%db, $item_id, "price", 0)
+    $x = db_add_property(%db, $item_id, "barcode", 1)
+    $x = db_add_property(%db, $item_id, "group", 2)
+
+    return 1
+}
+
+# ============================================================
+# Открытие и закрытие БД
+# ============================================================
+
+fun db_open($path) {
+    my %db = ("default" => undef)
+
+    my $fh = fopen($path + "/base.dat", "ab+")
+    fclose($fh)
+    %db["base"] = fopen($path + "/base.dat", "rb+")
+
+    $fh = fopen($path + "/class.dat", "ab+")
+    fclose($fh)
+    %db["class"] = fopen($path + "/class.dat", "rb+")
+
+    $fh = fopen($path + "/property.dat", "ab+")
+    fclose($fh)
+    %db["property"] = fopen($path + "/property.dat", "rb+")
+
+    $fh = fopen($path + "/object.dat", "ab+")
+    fclose($fh)
+    %db["object"] = fopen($path + "/object.dat", "rb+")
+
+    $fh = fopen($path + "/value.dat", "ab+")
+    fclose($fh)
+    %db["value"] = fopen($path + "/value.dat", "rb+")
+
+    $fh = fopen($path + "/data.dat", "ab+")
+    fclose($fh)
+    %db["data"] = fopen($path + "/data.dat", "rb+")
+
+    %db["path"] = $path
+
+    # Инициализируем БД при первом открытии
+    my $inited = db_init(%db)
+
+    return %db
+}
+
+fun db_close(%db) {
+    fclose(%db["base"])
+    fclose(%db["class"])
+    fclose(%db["property"])
+    fclose(%db["object"])
+    fclose(%db["value"])
+    fclose(%db["data"])
+}
+
+# ============================================================
+# Создание классов и свойств
+# ============================================================
+
+fun db_create_class(%db, $name, $parent_id) {
+    my $fh = %db["class"]
+    my $id = db_next_id($fh)
+
+    my $buf = bytearray(64)
+    set_id32($buf, 0, $id)
+    set_id32($buf, 10, $parent_id)
+    setstr_pad($buf, 20, $name, 30)
+    set8($buf, 63, 10)  # \n
+
+    fseek($fh, $id * 64, 0)
+    syswrite($fh, $buf)
+
+    return $id
+}
+
+fun db_add_property(%db, $class_id, $name, $type) {
+    my $fh = %db["property"]
+    my $id = db_next_id($fh)
+
+    my $buf = bytearray(64)
+    set_id32($buf, 0, $id)
+    set_id32($buf, 10, $class_id)
+
+    # type_hex(4): <XX>
+    my $type_str = "<0" + $type + ">"
+    setstr($buf, 20, $type_str)
+
+    setstr_pad($buf, 24, $name, 30)
+    set8($buf, 63, 10)  # \n
+
+    fseek($fh, $id * 64, 0)
+    syswrite($fh, $buf)
+
+    return $id
+}
+
+# ============================================================
+# Поиск классов и свойств
+# ============================================================
+
+fun db_find_class(%db, $class_name) {
+    my $fh = %db["class"]
+    my $count = db_next_id($fh)
+
+    my $i = 0
+    while($i < $count) {
+        fseek($fh, $i * 64, 0)
+        my $buf = sysread($fh, 64)
+
+        my $id = get_id32($buf, 0)
+        my $parent_id = get_id32($buf, 10)
+        my $name = getstr_pad($buf, 20, 30)
+
+        if($name == $class_name) {
+            return $id
+        }
+        $i = $i + 1
+    }
+    return -1
+}
+
+fun db_find_property(%db, $class_id, $prop_name) {
+    my $fh = %db["property"]
+    my $count = db_next_id($fh)
+
+    my $i = 0
+    while($i < $count) {
+        fseek($fh, $i * 64, 0)
+        my $buf = sysread($fh, 64)
+
+        my $pid = get_id32($buf, 0)
+        my $cid = get_id32($buf, 10)
+        my $name = getstr_pad($buf, 24, 30)
+
+        if($cid == $class_id and $name == $prop_name) {
+            return $pid
+        }
+        $i = $i + 1
+    }
+    return -1
+}
+
+# ============================================================
+# Вставка и выборка объектов
+# ============================================================
+
+# Вставить объект с данными
+fun db_insert(%db, $class_id, %data) {
+    my $obj_fh = %db["object"]
+    my $val_fh = %db["value"]
+    my $data_fh = %db["data"]
+
+    my $obj_id = db_next_obj_id($obj_fh)
+
+    my $buf = bytearray(32)
+    set_id64($buf, 0, $obj_id)
+    set_id32($buf, 18, $class_id)
+    # padding пробелами
+    my $i = 28
+    while($i < 31) {
+        set8($buf, $i, 32)
+        $i = $i + 1
+    }
+    set8($buf, 31, 10)  # \n
+
+    fseek($obj_fh, $obj_id * 32, 0)
+    syswrite($obj_fh, $buf)
+
+    my @keys = hkeys(%data)
+    my @vals = hvalues(%data)
+    my $count = len(@keys)
+
+    my $i = 0
+    while($i < $count) {
+        my $key = @keys[$i]
+        my $value = @vals[$i]
+
+        my $prop_id = db_find_property(%db, $class_id, $key)
+
+        if($prop_id >= 0) {
+            # Определяем тип свойства
+            my $prop_type = db_get_property_type(%db, $prop_id)
+
+            my $val_buf = bytearray(64)
+            set_id64($val_buf, 0, $obj_id)
+            set_id32($val_buf, 18, $prop_id)
+
+            if($prop_type == 0) {
+                # idouble — value_hex(27)
+                # Формат: <XXXXXXXXXXXXXXXX.XXXXXXXX>
+                my $val_str = db_format_double($value)
+                setstr($val_buf, 28, $val_str)
+            } elseif($prop_type == 1) {
+                # string — value = offset в data.dat
+                my $data_offset = ftell($data_fh)
+                writestr($data_fh, $key)
+                writestr($data_fh, $value)
+                set_id64($val_buf, 28, $data_offset)
+            } elseif($prop_type == 2) {
+                # object_ref — value = object_id
+                set_id64($val_buf, 28, $value)
+            }
+
+            # padding
+            my $j = 55
+            while($j < 63) {
+                set8($val_buf, $j, 32)
+                $j = $j + 1
+            }
+            set8($val_buf, 63, 10)  # \n
+
+            fseek($val_fh, 0, 2)  # в конец
+            syswrite($val_fh, $val_buf)
+        }
+        $i = $i + 1
+    }
+
+    return $obj_id
+}
+
+# Получить тип свойства по его id
+fun db_get_property_type(%db, $prop_id) {
+    my $fh = %db["property"]
+    my $count = db_next_id($fh)
+
+    my $i = 0
+    while($i < $count) {
+        fseek($fh, $i * 64, 0)
+        my $buf = sysread($fh, 64)
+
+        my $pid = get_id32($buf, 0)
+        if($pid == $prop_id) {
+            my $type_str = getstr($buf, 20, 4)
+            # type_str = "<0X>"
+            my $t = substr($type_str, 2, 1)
+            return $t
+        }
+        $i = $i + 1
+    }
+    return -1
+}
+
+# Получить объект по ID
+fun db_select(%db, $obj_id) {
+    my $obj_fh = %db["object"]
+    my $val_fh = %db["value"]
+    my $data_fh = %db["data"]
+
+    fseek($obj_fh, $obj_id * 32, 0)
+    my $obj_buf = sysread($obj_fh, 32)
+    my $oid = get_id64($obj_buf, 0)
+    my $cid = get_id32($obj_buf, 18)
+
+    if($oid != $obj_id) {
+        return undef
+    }
+
+    my %result = ("default" => undef)
+
+    my $val_count = db_next_id($val_fh)
+    my $i = 0
+    while($i < $val_count) {
+        fseek($val_fh, $i * 64, 0)
+        my $val_buf = sysread($val_fh, 64)
+
+        my $v_obj_id = get_id64($val_buf, 0)
+        my $v_prop_id = get_id32($val_buf, 18)
+
+        if($v_obj_id == $obj_id) {
+            my $prop_type = db_get_property_type(%db, $v_prop_id)
+            my $prop_name = db_get_property_name(%db, $v_prop_id)
+
+            if($prop_type == 0) {
+                # idouble
+                my $val_str = getstr($val_buf, 28, 27)
+                %result[$prop_name] = $val_str
+            } elseif($prop_type == 1) {
+                # string — читаем из data.dat
+                my $data_off = get_id64($val_buf, 28)
+                fseek($data_fh, $data_off, 0)
+                my $key = readstr($data_fh)
+                my $value = readstr($data_fh)
+                %result[$key] = $value
+            } elseif($prop_type == 2) {
+                # object_ref
+                my $ref_id = get_id64($val_buf, 28)
+                %result[$prop_name] = $ref_id
+            }
+        }
+        $i = $i + 1
+    }
+
+    return %result
+}
+
+# Получить имя свойства по его id
+fun db_get_property_name(%db, $prop_id) {
+    my $fh = %db["property"]
+    my $count = db_next_id($fh)
+
+    my $i = 0
+    while($i < $count) {
+        fseek($fh, $i * 64, 0)
+        my $buf = sysread($fh, 64)
+
+        my $pid = get_id32($buf, 0)
+        if($pid == $prop_id) {
+            return getstr_pad($buf, 24, 30)
+        }
+        $i = $i + 1
+    }
+    return ""
+}
+
+# ============================================================
+# Поиск
+# ============================================================
+
+fun db_search(%db, $class_id, $prop_name, $prop_value) {
+    my $obj_fh = %db["object"]
+    my $val_fh = %db["value"]
+    my $data_fh = %db["data"]
+
+    my $prop_id = db_find_property(%db, $class_id, $prop_name)
+    if($prop_id < 0) {
+        return array(0)
+    }
+
+    my @result = array(0)
+    my $obj_count = db_next_obj_id($obj_fh)
+    my $val_count = db_next_id($val_fh)
+
+    my $i = 0
+    while($i < $obj_count) {
+        fseek($obj_fh, $i * 32, 0)
+        my $obj_buf = sysread($obj_fh, 32)
+        my $oid = get_id64($obj_buf, 0)
+        my $cid = get_id32($obj_buf, 18)
+
+        if($cid == $class_id) {
+            my $j = 0
+            while($j < $val_count) {
+                fseek($val_fh, $j * 64, 0)
+                my $val_buf = sysread($val_fh, 64)
+                my $v_obj_id = get_id64($val_buf, 0)
+                my $v_prop_id = get_id32($val_buf, 18)
+
+                if($v_obj_id == $oid and $v_prop_id == $prop_id) {
+                    my $prop_type = db_get_property_type(%db, $prop_id)
+
+                    if($prop_type == 0) {
+                        my $val_str = getstr($val_buf, 28, 27)
+                        if($val_str == $prop_value) {
+                            my $len = len(@result)
+                            @result[$len] = $oid
+                        }
+                    } elseif($prop_type == 1) {
+                        my $data_off = get_id64($val_buf, 28)
+                        fseek($data_fh, $data_off, 0)
+                        my $key = readstr($data_fh)
+                        my $value = readstr($data_fh)
+                        if($value == $prop_value) {
+                            my $len = len(@result)
+                            @result[$len] = $oid
+                        }
+                    }
+                }
+                $j = $j + 1
+            }
+        }
+        $i = $i + 1
+    }
+
+    return @result
+}
+
+# ============================================================
+# Экспорт
+# ============================================================
+
+export db_open
+export db_close
+export db_next_id
+export db_next_obj_id
+export db_find_class
+export db_find_property
+export db_create_class
+export db_add_property
+export db_insert
+export db_select
+export db_search
+export db_init

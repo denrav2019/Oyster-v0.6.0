@@ -1,0 +1,23 @@
+use "stdlib/db" as db
+
+%db = db.db_open("./testdb")
+
+# Создаём класс "Person"
+$person_class = db.db_create_class(%db, "Person", 0)
+$x = db.db_add_property(%db, $person_class, "name", 4)
+$x = db.db_add_property(%db, $person_class, "age", 3)
+
+# Вставляем объекты
+%data1 = ("name" => "Alice", "age" => "30")
+$x = db.db_insert(%db, $person_class, %data1)
+
+%data2 = ("name" => "Bob", "age" => "25")
+$x = db.db_insert(%db, $person_class, %data2)
+
+%data3 = ("name" => "Charlie", "age" => "35")
+$x = db.db_insert(%db, $person_class, %data3)
+
+# Поиск
+@results = db.db_search(%db, $person_class, "age", "30")
+print("Found:")
+print(len(@results))

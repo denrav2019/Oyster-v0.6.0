@@ -1,0 +1,4 @@
+print("=== Unicode test ===")
+$u = u"Hello"
+print($u)
+print(len($u))

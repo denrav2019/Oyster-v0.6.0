@@ -1,0 +1,64 @@
+# ============================================================
+# tk.osm — Tcl/Tk GUI для Oyster (базовый модуль)
+# ============================================================
+
+# Глобальное состояние
+%tk_state = ("pipe_idx" => -1, "widget_counter" => 0, "initialized" => 0)
+
+# Инициализация Tk
+fun tk_init() {
+    my $idx = popen2("wish")
+    if($idx < 0) {
+        return -1
+    }
+
+    %tk_state["pipe_idx"] = $idx
+    %tk_state["widget_counter"] = 0
+    %tk_state["initialized"] = 1
+
+    return $idx
+}
+
+# Отправить Tcl-команду (без \n — добавляем сами)
+fun tk_send($cmd) {
+    if(%tk_state["initialized"] == 0) {
+        return 0
+    }
+
+    my $idx = %tk_state["pipe_idx"]
+    my $full_cmd = $cmd + chr(10)
+    pipe_write($idx, $full_cmd)
+    return 1
+}
+
+# Закрыть Tk
+fun tk_close() {
+    if(%tk_state["initialized"] == 1) {
+        pipe_close(%tk_state["pipe_idx"])
+        %tk_state["initialized"] = 0
+        %tk_state["pipe_idx"] = -1
+    }
+}
+
+# Ждать событие с таймаутом
+fun tk_wait_event($timeout_ms) {
+    if(%tk_state["initialized"] == 0) {
+        return ""
+    }
+
+    my $idx = %tk_state["pipe_idx"]
+    return pipe_read($idx, 256, $timeout_ms)
+}
+
+# Получить следующий ID виджета
+fun tk_next_id() {
+    my $id = %tk_state["widget_counter"]
+    %tk_state["widget_counter"] = $id + 1
+    return $id
+}
+
+export tk_init
+export tk_close
+export tk_send
+export tk_wait_event
+export tk_next_id

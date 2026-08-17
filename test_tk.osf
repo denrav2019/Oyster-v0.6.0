@@ -1,0 +1,21 @@
+use "tk" as tk
+
+$idx = tk.tk_init()
+print("Tk index:")
+print($idx)
+
+if($idx >= 0) {
+    tk.tk_window("Test", 400, 300)
+
+    $btn = tk.tk_button("Click me")
+    tk.tk_pack($btn)
+
+    print("Button created")
+
+    # Ждём 1 секунду
+    $event = tk.tk_wait_event(1000)
+    print("Event:")
+    print($event)
+
+    tk.tk_close()
+}

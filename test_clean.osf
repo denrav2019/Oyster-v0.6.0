@@ -1,0 +1,331 @@
+# ============================================================
+# Full test: separate tables for global and local variables
+# Oyster v0.5.2 - Testing opcodes d/q (local) and v/p (global)
+# ============================================================
+
+# === 1. GLOBAL VARIABLES ===
+print("=== 1. Global variables ===")
+
+$x = 100
+$y = 200
+$z = $x + $y
+
+print($x)
+print($y)
+print($z)
+
+$x = 150
+print($x)
+
+inc($x)
+print($x)
+
+dec($y)
+print($y)
+
+$name = "Oyster"
+$version = "0.5.2"
+$full = $name + " " + $version
+print($full)
+
+
+# === 2. GLOBAL ARRAYS AND HASHES ===
+print("")
+print("=== 2. Global arrays and hashes ===")
+
+@arr = (1, 2, 3, 4, 5)
+print(@arr[0])
+print(@arr[2])
+print(len(@arr))
+
+@arr[1] = 20
+print(@arr[1])
+
+%hash = ("name" => "Alice", "age" => 30)
+print(%hash["name"])
+print(%hash["age"])
+
+%hash["age"] = 31
+print(%hash["age"])
+
+
+# === 3. FUNCTIONS WITH LOCAL VARIABLES ===
+print("")
+print("=== 3. Functions with local variables ===")
+
+fun test_local_vars($a, $b) {
+    print("  Inside test_local_vars:")
+
+    print($a)
+    print($b)
+
+    my $sum = $a + $b
+    print($sum)
+
+    my $diff = $a - $b
+    print($diff)
+
+    my $x = $a * $b
+    print($x)
+    $x = $x + 1
+    print($x)
+
+    return $x
+}
+
+$result1 = test_local_vars(10, 5)
+print("  Result test_local_vars:")
+print($result1)
+
+print("  Global $x after:")
+print($x)
+
+
+# === 4. LOCAL VARIABLES ISOLATION ===
+print("")
+print("=== 4. Local variables isolation ===")
+
+fun test_isolation() {
+    print("  Inside test_isolation:")
+
+    my $x = 999
+    print($x)
+
+    my $y = 888
+    print($y)
+
+    my $local_only = 777
+    print($local_only)
+
+    return $x
+}
+
+$result2 = test_isolation()
+print("  Result test_isolation:")
+print($result2)
+
+print("  Global $x after:")
+print($x)
+print("  Global $y after:")
+print($y)
+
+
+# === 5. LOCAL INC/DEC ===
+print("")
+print("=== 5. Local inc/dec ===")
+
+fun test_inc_dec($start) {
+    print("  Inside test_inc_dec:")
+
+    my $counter = $start
+    print($counter)
+
+    inc($counter)
+    print($counter)
+
+    inc($counter)
+    print($counter)
+
+    dec($counter)
+    print($counter)
+
+    return $counter
+}
+
+$result3 = test_inc_dec(50)
+print("  Result test_inc_dec:")
+print($result3)
+
+
+# === 6. ARRAYS AND HASHES IN FUNCTIONS ===
+print("")
+print("=== 6. Arrays and hashes in functions ===")
+
+fun test_arrays_locally($size) {
+    print("  Inside test_arrays_locally:")
+
+    my @local_arr = array($size)
+    @local_arr[0] = 100
+    @local_arr[1] = 200
+    @local_arr[2] = 300
+
+    print(@local_arr[0])
+    print(@local_arr[1])
+    print(len(@local_arr))
+
+    my %local_hash = ("key1" => "val1", "key2" => "val2")
+    print(%local_hash["key1"])
+    print(%local_hash["key2"])
+
+    return @local_arr[0]
+}
+
+$result4 = test_arrays_locally(5)
+print("  Result test_arrays_locally:")
+print($result4)
+
+
+# === 7. NESTED FUNCTION CALLS ===
+print("")
+print("=== 7. Nested function calls ===")
+
+fun inner($y) {
+    print("    Inside inner:")
+    my $z = $y * 2
+    print($z)
+    return $z
+}
+
+fun outer($x) {
+    print("  Inside outer:")
+    my $a = $x + 1
+    print($a)
+    my $b = inner($a)
+    print($b)
+    return $b
+}
+
+$result5 = outer(5)
+print("  Result outer:")
+print($result5)
+
+
+# === 8. RECURSION WITH LOCAL VARS ===
+print("")
+print("=== 8. Recursion with local vars ===")
+
+fun factorial($n) {
+    if ($n <= 1) {
+        return 1
+    }
+    my $prev = factorial($n - 1)
+    my $result = $n * $prev
+    return $result
+}
+
+$fact5 = factorial(5)
+print("  factorial(5):")
+print($fact5)
+
+$fact10 = factorial(10)
+print("  factorial(10):")
+print($fact10)
+
+
+# === 9. EDGE CASES ===
+print("")
+print("=== 9. Edge cases ===")
+
+fun test_edge_cases() {
+    print("  Inside test_edge_cases:")
+
+    my $empty
+    print($empty)
+
+    my $a = 10
+    my $b = $a
+    print($b)
+
+    my $c = 1
+    $c = 2
+    $c = 3
+    print($c)
+
+    my $x = 10
+    my $y = 3
+    my $sum = $x + $y
+    my $prod = $x * $y
+    my $div = $x / $y
+    print($sum)
+    print($prod)
+    print($div)
+
+    return 0
+}
+
+$result6 = test_edge_cases()
+print("  Result test_edge_cases:")
+print($result6)
+
+
+# === 10. READING GLOBALS FROM FUNCTION ===
+print("")
+print("=== 10. Reading globals from function ===")
+
+$global_value = 42
+
+fun read_global() {
+    print("  Inside read_global:")
+    print($global_value)
+
+    my $global_value = 99
+    print($global_value)
+
+    return $global_value
+}
+
+$result7 = read_global()
+print("  Result read_global:")
+print($result7)
+print("  Global $global_value unchanged:")
+print($global_value)
+
+
+# === 11. STRING OPERATIONS ===
+print("")
+print("=== 11. String operations ===")
+
+fun string_ops($prefix) {
+    print("  Inside string_ops:")
+
+    my $suffix = "_suffix"
+    my $combined = $prefix + $suffix
+    print($combined)
+
+    my $upper = uc($combined)
+    print($upper)
+
+    my $lower = lc($upper)
+    print($lower)
+
+    my $length = len($combined)
+    print($length)
+
+    return $combined
+}
+
+$result8 = string_ops("hello")
+print("  Result string_ops:")
+print($result8)
+
+
+# === 12. LOOPS WITH LOCAL VARS ===
+print("")
+print("=== 12. Loops with local vars ===")
+
+fun sum_array($n) {
+    my $sum = 0
+    my $i = 1
+
+    while ($i <= $n) {
+        $sum = $sum + $i
+        $i = $i + 1
+    }
+
+    return $sum
+}
+
+$result9 = sum_array(10)
+print("  Sum 1..10:")
+print($result9)
+
+
+# === FINAL CHECK ===
+print("")
+print("=== Final check ===")
+print($x)
+print($y)
+print($z)
+print($name)
+print($global_value)
+print("All tests passed!")

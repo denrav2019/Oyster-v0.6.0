@@ -1,0 +1,48 @@
+# ============================================================
+# Full test: separate tables for global and local variables
+# Oyster v0.5.2 - Testing opcodes d/q (local) and v/p (global)
+# ============================================================
+
+
+
+# === 3. FUNCTIONS WITH LOCAL VARIABLES ===
+print("")
+print("=== 3. Functions with local variables ===")
+
+fun test_local_vars($a, $b) {
+    print("  Inside test_local_vars:")
+
+    print($a)
+    print($b)
+
+    my $sum = $a + $b
+    print($sum)
+
+    my $diff = $a - $b
+    print($diff)
+
+    my $x = $a * $b
+    print($x)
+    $x = $x + 1
+    print($x)
+
+    return $x
+}
+
+$result1 = test_local_vars(10, 5)
+print("  Result test_local_vars:")
+print($result1)
+
+print("  Global $x after:")
+print($x)
+
+
+# === FINAL CHECK ===
+print("")
+print("=== Final check ===")
+print($x)
+print($y)
+print($z)
+print($name)
+print($global_value)
+print("All tests passed!")

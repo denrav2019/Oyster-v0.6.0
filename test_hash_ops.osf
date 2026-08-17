@@ -1,0 +1,59 @@
+print("=== Hash operations test ===")
+
+# Создаём хеш
+%h = ("a" => "1", "b" => "2", "c" => "3")
+print("Initial hash:")
+print(%h["a"])
+print(%h["b"])
+print(%h["c"])
+
+# haskeys
+print("haskeys:")
+print(haskeys(%h))
+
+# exists
+print("exists a:")
+print(exists(%h, "a"))
+print("exists z:")
+print(exists(%h, "z"))
+
+# getkey
+print("getkey 0:")
+print(getkey(%h, 0))
+print("getkey 1:")
+print(getkey(%h, 1))
+
+# setkey
+print("setkey a->x:")
+setkey(%h, "a", "x")
+print(%h["x"])
+print(%h["a"])
+
+# hadd (2 аргумента)
+print("hadd value 4:")
+hadd(%h, "4")
+print("len:")
+print(len(%h))
+
+# hadd (3 аргумента)
+print("hadd key d value 5:")
+hadd(%h, "5", "d")
+print(%h["d"])
+
+# hdel
+print("hdel:")
+hdel(%h)
+print("len after hdel:")
+print(len(%h))
+
+# hkeys
+print("hkeys:")
+@keys = hkeys(%h)
+print(len(@keys))
+
+# hvalues
+print("hvalues:")
+@vals = hvalues(%h)
+print(len(@vals))
+
+print("=== Done ===")

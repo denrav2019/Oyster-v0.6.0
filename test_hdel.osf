@@ -1,0 +1,32 @@
+print("=== hdel test ===")
+
+%h = ("a" => "1", "b" => "2", "c" => "3", "d" => "4")
+print("Initial len:")
+print(len(%h))
+
+print("hdel:")
+hdel(%h)
+print("len after hdel 1:")
+print(len(%h))
+
+print("hdel:")
+hdel(%h)
+print("len after hdel 2:")
+print(len(%h))
+
+print("hdel:")
+hdel(%h)
+print("len after hdel 3:")
+print(len(%h))
+
+print("hdel:")
+hdel(%h)
+print("len after hdel 4:")
+print(len(%h))
+
+print("hdel on empty:")
+hdel(%h)
+print("len after hdel 5:")
+print(len(%h))
+
+print("=== Done ===")

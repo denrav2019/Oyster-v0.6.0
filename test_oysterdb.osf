@@ -1,0 +1,27 @@
+use "db" as db
+
+%db = db.db_open("./testdb")
+
+# Создаём класс "Person"
+$person_class = db.db_create_class(%db, "Person", 0)
+$x = db.db_add_property(%db, $person_class, "name", &db.CLASS_STRING)
+$x = db.db_add_property(%db, $person_class, "age", &db.CLASS_NUMBER)
+
+# Вставляем объекты
+%data1 = ("name" => "Alice", "age" => "30")
+$x = db.db_insert(%db, $person_class, %data1)
+
+%data2 = ("name" => "Bob", "age" => "25")
+$x = db.db_insert(%db, $person_class, %data2)
+
+%data3 = ("name" => "Charlie", "age" => "35")
+$x = db.db_insert(%db, $person_class, %data3)
+
+# Мульти-поиск: age > 25
+%cond1 = ("property" => "age", "cond_oper" => ">", "cond_value" => "25")
+%cond2 = ("for_class" => "Person", "property" => "age", "cond_oper" => "<=", "cond_value" => "35")
+%conditions = (%cond1, %cond2)
+
+@results = db.db_multysearch(%db, %conditions)
+print("Found objects:")
+print(len(@results))

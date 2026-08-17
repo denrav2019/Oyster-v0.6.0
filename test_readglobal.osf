@@ -1,0 +1,5 @@
+$name = "Oyster"
+fun greet() {
+  return "Hello, " + $name
+}
+print(greet())

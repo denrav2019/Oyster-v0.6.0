@@ -1,0 +1,37 @@
+print("=== popen test ===")
+
+# Запускаем процесс echo
+$fh = popen("echo Hello from Oyster", "r")
+print("popen echo:")
+print($fh)
+
+if($fh >= 0) {
+    # Читаем вывод
+    $output = sysread($fh, 100)
+    print("Output:")
+    print($output)
+
+    # Закрываем
+    $result = pclose($fh)
+    print("pclose result:")
+    print($result)
+}
+
+print("")
+
+# Запускаем процесс, который пишет в stdin
+$fh2 = popen("cat", "w")
+print("popen cat:")
+print($fh2)
+
+if($fh2 >= 0) {
+    # Пишем в stdin
+    syswrite($fh2, "Data to cat\n")
+
+    # Закрываем
+    $result = pclose($fh2)
+    print("pclose result:")
+    print($result)
+}
+
+print("=== Done ===")

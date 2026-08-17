@@ -1,0 +1,124 @@
+# ============================================================
+# ui.osm — элементы GUI для Oyster (canvas-based)
+# ============================================================
+
+use "tk" as tk
+
+# Счётчики для виджетов
+%ui_state = ("form_counter" => 0, "frame_counter" => 0, "canvas_counter" => 0)
+
+# ============================================================
+# Форма (окно)
+# ============================================================
+fun ui_form($title, $width, $height) {
+    tk.tk_send("wm title . {" + $title + "}")
+    tk.tk_send("wm geometry . " + $width + "x" + $height)
+    return 1
+}
+
+# ============================================================
+# Фрейм (контейнер)
+# ============================================================
+fun ui_frame($parent, $x, $y, $width, $height) {
+    my $id = tk.tk_next_id()
+    tk.tk_send("frame .f" + $id + " -width " + $width + " -height " + $height)
+    tk.tk_send("place .f" + $id + " -x " + $x + " -y " + $y)
+    return $id
+}
+
+# ============================================================
+# Canvas (область рисования)
+# ============================================================
+fun ui_canvas($parent, $x, $y, $width, $height) {
+    my $id = tk.tk_next_id()
+    tk.tk_send("canvas .c" + $id + " -width " + $width + " -height " + $height + " -bg white")
+    tk.tk_send("place .c" + $id + " -x " + $x + " -y " + $y)
+    return $id
+}
+
+# ============================================================
+# Кнопка
+# ============================================================
+fun ui_button($parent, $text, $x, $y, $width, $height) {
+    my $id = tk.tk_next_id()
+    tk.tk_send("button .b" + $id + " -text {" + $text + "} -command {puts EVENT}")
+    tk.tk_send("place .b" + $id + " -x " + $x + " -y " + $y + " -width " + $width + " -height " + $height)
+    return $id
+}
+
+# ============================================================
+# Поле ввода
+# ============================================================
+fun ui_entry($parent, $x, $y, $width, $height) {
+    my $id = tk.tk_next_id()
+    tk.tk_send("entry .e" + $id)
+    tk.tk_send("place .e" + $id + " -x " + $x + " -y " + $y + " -width " + $width + " -height " + $height)
+    return $id
+}
+
+# ============================================================
+# Метка
+# ============================================================
+fun ui_label($parent, $text, $x, $y) {
+    my $id = tk.tk_next_id()
+    tk.tk_send("label .l" + $id + " -text {" + $text + "}")
+    tk.tk_send("place .l" + $id + " -x " + $x + " -y " + $y)
+    return $id
+}
+
+# ============================================================
+# Графика на canvas
+# ============================================================
+
+# Линия
+fun ui_canvas_line($canvas_id, $x1, $y1, $x2, $y2) {
+    my $item_id = tk.tk_next_id()
+    tk.tk_send(".c" + $canvas_id + " create line " + $x1 + " " + $y1 + " " + $x2 + " " + $y2 + " -width 2")
+    return $item_id
+}
+
+# Прямоугольник
+fun ui_canvas_rect($canvas_id, $x, $y, $width, $height) {
+    my $item_id = tk.tk_next_id()
+    tk.tk_send(".c" + $canvas_id + " create rectangle " + $x + " " + $y + " " + ($x + $width) + " " + ($y + $height) + " -outline black")
+    return $item_id
+}
+
+# Эллипс
+fun ui_canvas_ellipse($canvas_id, $x, $y, $rx, $ry) {
+    my $item_id = tk.tk_next_id()
+    tk.tk_send(".c" + $canvas_id + " create oval " + ($x - $rx) + " " + ($y - $ry) + " " + ($x + $rx) + " " + ($y + $ry) + " -outline black")
+    return $item_id
+}
+
+# ============================================================
+# Получение текста из поля ввода
+# ============================================================
+fun ui_get_text($entry_id) {
+    tk.tk_send("puts [.e" + $entry_id + " get]")
+    my $idx = %tk_state["pipe_idx"]
+    return pipe_read($idx, 256, 50)
+}
+
+# ============================================================
+# Установка текста в метке
+# ============================================================
+fun ui_set_text($label_id, $text) {
+    tk.tk_send(".l" + $label_id + " configure -text {" + $text + "}")
+    return 1
+}
+
+# ============================================================
+# Экспорт
+# ============================================================
+export ui_form
+export ui_frame
+export ui_canvas
+export ui_button
+export ui_entry
+export ui_label
+export ui_canvas_line
+export ui_canvas_rect
+export ui_canvas_ellipse
+export ui_get_text
+export ui_set_text

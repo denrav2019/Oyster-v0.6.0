@@ -1,0 +1,12 @@
+fun test_multi() {
+    my $a = 1
+    my $b = 2
+    my $c = 3
+    print($a)
+    print($b)
+    print($c)
+    return $a + $b + $c
+}
+
+$r = test_multi()
+print($r)

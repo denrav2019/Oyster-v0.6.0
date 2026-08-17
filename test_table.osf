@@ -1,0 +1,33 @@
+use "stdlib/tk" as tk
+
+$tk = tk.tk_init()
+print("Tk index:")
+print($tk)
+
+if($tk >= 0) {
+    # Создаём окно
+    tk.tk_send($tk, "wm title . Table_Test")
+    tk.tk_send($tk, "wm geometry . 600x400")
+
+    # Создаём таблицу через ttk::treeview
+    tk.tk_send($tk, "ttk::treeview .t1 -columns {name price} -show headings")
+    tk.tk_send($tk, ".t1 heading name -text Name")
+    tk.tk_send($tk, ".t1 heading price -text Price")
+    tk.tk_send($tk, ".t1 column name -width 200")
+    tk.tk_send($tk, ".t1 column price -width 100")
+
+    # Добавляем данные
+    tk.tk_send($tk, ".t1 insert {} end -values {Молоко 95.50}")
+    tk.tk_send($tk, ".t1 insert {} end -values {Хлеб 45.00}")
+    tk.tk_send($tk, ".t1 insert {} end -values {Сыр 250.00}")
+
+    tk.tk_send($tk, "pack .t1 -padx 10 -pady 10")
+    tk.tk_send($tk, "update")
+
+    # Ждём событие
+    $event = tk.tk_wait_event($tk, 5000)
+    print("Event:")
+    print($event)
+
+    tk.tk_close($tk)
+}

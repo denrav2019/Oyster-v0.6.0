@@ -1,0 +1,6 @@
+fun calc($a, $b) {
+  my $sum = $a + $b
+  my $prod = $a * $b
+  return $sum + $prod
+}
+print(calc(10, 20))

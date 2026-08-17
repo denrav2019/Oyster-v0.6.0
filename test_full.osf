@@ -1,0 +1,427 @@
+# ============================================================
+# Полный тест раздельных таблиц глобальных и локальных переменных
+# Oyster v0.5.1 - Тестирование опкодов d/q (local) и v/p (global)
+# ============================================================
+
+# === 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+print("=== 1. Global variables ===")
+
+$x = 100
+$y = 200
+$z = $x + $y
+
+print($x)
+print($y)
+print($z)
+
+$x = 150
+print($x)
+
+inc($x)
+print($x)
+
+dec($y)
+print($y)
+
+$name = "Oyster"
+$version = "0.5.1"
+$full = $name + " " + $version
+print($full)
+
+
+# === 2. ГЛОБАЛЬНЫЕ МАССИВЫ И ХЕШИ ===
+print("")
+print("=== 2. Global arrays and hashes ===")
+
+@arr = (1, 2, 3, 4, 5)
+print(@arr[0])
+print(@arr[2])
+print(len(@arr))
+
+@arr[1] = 20
+print(@arr[1])
+
+%hash = ("name" => "Alice", "age" => 30)
+print(%hash["name"])
+print(%hash["age"])
+
+%hash["age"] = 31
+print(%hash["age"])
+
+
+# === 3. ФУНКЦИИ С ЛОКАЛЬНЫМИ ПЕРЕМЕННЫМИ ===
+print("")
+print("=== 3. Functions with local variables ===")
+
+fun test_local_vars($a, $b) {
+    print("  Inside test_local_vars:")
+
+    print($a)
+    print($b)
+
+    my $sum = $a + $b
+    print($sum)
+
+    my $diff = $a - $b
+    print($diff)
+
+    my $x = $a * $b
+    print($x)
+    $x = $x + 1
+    print($x)
+
+    return $x
+}
+
+$result1 = test_local_vars(10, 5)
+print("  Result test_local_vars:")
+print($result1)
+
+print("  Global $x after:")
+print($x)
+
+
+# === 4. ИЗОЛЯЦИЯ ЛОКАЛЬНЫХ ПЕРЕМЕННЫХ ===
+print("")
+print("=== 4. Local variables isolation ===")
+
+fun test_isolation() {
+    print("  Inside test_isolation:")
+
+    my $x = 999
+    print($x)
+
+    my $y = 888
+    print($y)
+
+    my $local_only = 777
+    print($local_only)
+
+    return $x
+}
+
+$result2 = test_isolation()
+print("  Result test_isolation:")
+print($result2)
+
+print("  Global $x after:")
+print($x)
+print("  Global $y after:")
+print($y)
+
+
+# === 5. ИНКРЕМЕНТ/ДЕКРЕМЕНТ ЛОКАЛЬНЫХ ===
+print("")
+print("=== 5. Local inc/dec ===")
+
+fun test_inc_dec($start) {
+    print("  Inside test_inc_dec:")
+
+    my $counter = $start
+    print($counter)
+
+    inc($counter)
+    print($counter)
+
+    inc($counter)
+    print($counter)
+
+    dec($counter)
+    print($counter)
+
+    return $counter
+}
+
+$result3 = test_inc_dec(50)
+print("  Result test_inc_dec:")
+print($result3)
+
+
+# === 6. МАССИВЫ И ХЕШИ В ФУНКЦИЯХ ===
+print("")
+print("=== 6. Arrays and hashes in functions ===")
+
+fun test_arrays_locally($size) {
+    print("  Inside test_arrays_locally:")
+
+    my @local_arr = array($size)
+    @local_arr[0] = 100
+    @local_arr[1] = 200
+    @local_arr[2] = 300
+
+    print(@local_arr[0])
+    print(@local_arr[1])
+    print(len(@local_arr))
+
+    my %local_hash = ("key1" => "val1", "key2" => "val2")
+    print(%local_hash["key1"])
+    print(%local_hash["key2"])
+
+    return @local_arr[0]
+}
+
+$result4 = test_arrays_locally(5)
+print("  Result test_arrays_locally:")
+print($result4)
+
+
+# === 7. ВЛОЖЕННЫЕ ВЫЗОВЫ ===
+print("")
+print("=== 7. Nested function calls ===")
+
+fun inner($y) {
+    print("    Inside inner:")
+    my $z = $y * 2
+    print($z)
+    return $z
+}
+
+fun outer($x) {
+    print("  Inside outer:")
+    my $a = $x + 1
+    print($a)
+    my $b = inner($a)
+    print($b)
+    return $b
+}
+
+$result5 = outer(5)
+print("  Result outer:")
+print($result5)
+
+
+# === 8. РЕКУРСИЯ С ЛОКАЛЬНЫМИ ===
+print("")
+print("=== 8. Recursion with local vars ===")
+
+fun factorial($n) {
+    if ($n <= 1) {
+        return 1
+    }
+    my $prev = factorial($n - 1)
+    my $result = $n * $prev
+    return $result
+}
+
+$fact5 = factorial(5)
+print("  factorial(5):")
+print($fact5)
+
+$fact10 = factorial(10)
+print("  factorial(10):")
+print($fact10)
+
+
+# === 9. КРАЕВЫЕ СЛУЧАИ ===
+print("")
+print("=== 9. Edge cases ===")
+
+fun test_edge_cases() {
+    print("  Inside test_edge_cases:")
+
+    my $empty
+    print($empty)
+
+    my $a = 10
+    my $b = $a
+    print($b)
+
+    my $c = 1
+    $c = 2
+    $c = 3
+    print($c)
+
+    my $x = 10
+    my $y = 3
+    my $sum = $x + $y
+    my $prod = $x * $y
+    my $div = $x / $y
+    print($sum)
+    print($prod)
+    print($div)
+
+    return 0
+}
+
+$result6 = test_edge_cases()
+print("  Result test_edge_cases:")
+print($result6)
+
+
+# === 10. ЧТЕНИЕ ГЛОБАЛЬНЫХ ИЗ ФУНКЦИИ ===
+print("")
+print("=== 10. Reading globals from function ===")
+
+$global_value = 42
+
+fun read_global() {
+    print("  Inside read_global:")
+    print($global_value)
+
+    my $global_value = 99
+    print($global_value)
+
+    return $global_value
+}
+
+$result7 = read_global()
+print("  Result read_global:")
+print($result7)
+print("  Global $global_value unchanged:")
+print($global_value)
+
+
+# === 11. СТРОКОВЫЕ ОПЕРАЦИИ ===
+print("")
+print("=== 11. String operations ===")
+
+fun string_ops($prefix) {
+    print("  Inside string_ops:")
+
+    my $suffix = "_suffix"
+    my $combined = $prefix + $suffix
+    print($combined)
+
+    my $upper = uc($combined)
+    print($upper)
+
+    my $lower = lc($upper)
+    print($lower)
+
+    my $length = len($combined)
+    print($length)
+
+    return $combined
+}
+
+$result8 = string_ops("hello")
+print("  Result string_ops:")
+print($result8)
+
+
+# === 12. ЦИКЛЫ С ЛОКАЛЬНЫМИ ===
+print("")
+print("=== 12. Loops with local vars ===")
+
+fun sum_array($n) {
+    my $sum = 0
+    my $i = 1
+
+    while ($i <= $n) {
+        $sum = $sum + $i
+        $i = $i + 1
+    }
+
+    return $sum
+}
+
+$result9 = sum_array(10)
+print("  Sum 1..10:")
+print($result9)
+
+
+# === 13. ЦИКЛ FOR IN С ЛОКАЛЬНЫМИ ===
+print("")
+print("=== 13. For-in loop with local vars ===")
+
+fun sum_for($n) {
+    my $total = 0
+    my @numbers = array($n)
+
+    my $i = 0
+    while ($i < $n) {
+        @numbers[$i] = $i + 1
+        $i = $i + 1
+    }
+
+    $i = 0
+    while ($i < $n) {
+        $total = $total + @numbers[$i]
+        $i = $i + 1
+    }
+
+    return $total
+}
+
+$result10 = sum_for(5)
+print("  Sum 1..5 via array:")
+print($result10)
+
+
+# === 14. МНОЖЕСТВЕННЫЕ MY ===
+print("")
+print("=== 14. Multiple my declarations ===")
+
+fun multi_my() {
+    print("  Inside multi_my:")
+
+    my $a = 1
+    my $b = 2
+    my $c = 3
+    my $d = 4
+    my $e = 5
+
+    print($a)
+    print($b)
+    print($c)
+    print($d)
+    print($e)
+
+    return $a + $b + $c + $d + $e
+}
+
+$result11 = multi_my()
+print("  Sum of 1..5:")
+print($result11)
+
+
+# === 15. ПРОВЕРКА ТОГО, ЧТО ГЛОБАЛЬНЫЕ НЕ ИЗМЕНИЛИСЬ ===
+print("")
+print("=== 15. Final global variables check ===")
+print($x)
+print($y)
+print($z)
+print($name)
+print($global_value)
+print("All tests passed!")
+# === 16. UNICODE STRINGS TEST ===
+print("")
+print("=== 16. Unicode strings test ===")
+
+fun test_unicode() {
+    print("  Inside test_unicode:")
+
+    # Unicode-строка
+    my $hello = u"Привет, мир!"
+    print($hello)
+
+    # Длина в символах (не байтах)
+    my $len = len($hello)
+    print($len)
+
+    # Верхний регистр
+    my $upper = uc($hello)
+    print($upper)
+
+    # Нижний регистр
+    my $lower = lc($upper)
+    print($lower)
+
+    # chr и ord
+    my $char = chr(1040)
+    print($char)
+
+    my $code = ord($char)
+    print($code)
+
+    return $len
+}
+
+$unicode_len = test_unicode()
+print("  Unicode string length:")
+print($unicode_len)
+
+# Unicode в глобальной переменной
+$global_unicode = u"🌍 Oyster 🦪"
+print($global_unicode)
+print(len($global_unicode))

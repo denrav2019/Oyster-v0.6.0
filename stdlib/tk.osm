@@ -1,0 +1,36 @@
+# ============================================================
+# tk.osm — Tcl/Tk GUI (без глобального состояния)
+# ============================================================
+
+# Инициализация — возвращает индекс pipe
+fun tk_init() {
+    my $idx = popen2("wish")
+    if($idx < 0) {
+        return -1
+    }
+    return $idx
+}
+
+# Отправить команду
+fun tk_send($idx, $cmd) {
+    my $full_cmd = $cmd + chr(10)
+    pipe_write($idx, $full_cmd)
+    return 1
+}
+
+# Ждать событие
+fun tk_wait_event($idx, $timeout_ms) {
+    return pipe_read($idx, 256, $timeout_ms)
+}
+
+# Закрыть
+fun tk_close($idx) {
+    pipe_close($idx)
+    return 1
+}
+
+export tk_init
+export tk_send
+export tk_wait_event
+export tk_close
+export tk_next_id

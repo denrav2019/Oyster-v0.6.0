@@ -1,0 +1,37 @@
+use "stdlib/tk" as tk
+
+$tk = tk.tk_init()
+print("Tk index:")
+print($tk)
+
+if($tk >= 0) {
+    tk.tk_send($tk, "wm title . Test")
+    tk.tk_send($tk, "wm geometry . 400x300")
+
+    tk.tk_send($tk, "button .b1 -text ClickMe -command {puts CLICKED}")
+    tk.tk_send($tk, "pack .b1 -padx 20 -pady 20")
+
+    tk.tk_send($tk, "label .l1 -text Waiting")
+    tk.tk_send($tk, "pack .l1 -padx 20 -pady 20")
+
+    tk.tk_send($tk, "update")
+
+    $count = 0
+    while($count < 5) {
+        $event = tk.tk_wait_event($tk, 1000)
+        if($event != "") {
+            print("Event received:")
+            print($event)
+            print($count)
+            $event_clean = substr($event, 0, len($event) - 1)
+            if($event_clean == "CLICKED") {
+                print("!!!")
+                tk.tk_send($tk, ".l1 configure -text Button_pressed")
+                tk.tk_send($tk, "update")
+                $count = $count + 1
+            }
+        }
+    }
+
+    tk.tk_close($tk)
+}
