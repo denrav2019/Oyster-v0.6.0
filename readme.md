@@ -22,15 +22,15 @@
 ## 📦 Установка
 
 ```bash
-git clone https://github.com/denrav2019/Oyster-v0.5.1.git
-cd Oyster-v0.5.1
+git clone https://github.com/denrav2019/Oyster-v0.6.0.git
+cd Oyster-v0.6.0
 make
 sudo make install
 ```
 ## Installation / Установка
 
-`git clone https://github.com/denrav2019/Oyster-v0.5.1.git`  
-`cd Oyster-v0.5.1`  
+`git clone https://github.com/denrav2019/Oyster-v0.6.0.git`  
+`cd Oyster-v0.6.0`  
 `make`  
 `sudo make install`
 
@@ -378,6 +378,9 @@ print("Hello, World!")
 
 #### Math / Математические
 Все математические функции работают с числами типа `V_NUMBER` (fixed-point 64.32).
+* [abs(x)](#`abs(x)`)
+* [sign(x)](#`sign(x)`)
+
 
 ##### `abs(x)` — Абсолютное значение. 
 Возвращает абсолютное значение числа (модуль).
