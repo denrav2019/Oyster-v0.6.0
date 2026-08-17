@@ -373,7 +373,7 @@ print("Hello, World!")
 
 #### Math / Математические
 Все математические функции работают с числами типа `V_NUMBER` (fixed-point 64.32).
-* abs(x)
+* [abs(x)](#absx)
 * sign(x)
 * inv(x)
 * int(x)
