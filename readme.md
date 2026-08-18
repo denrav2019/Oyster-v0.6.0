@@ -372,8 +372,8 @@ $result = $a.abs().sqrt().int()
 * [Print / Печать](#Print--Печать)
 * [Math / Математические](#Math--Математические)
 * [String / Строковые](#String--Строковые)
-* [Array/Hash/String / Для строк, массивов и хешей](#Array/Hash/String--Для-строк-массивов-и-хешей)
-* [Array/String / Для строк и массивов](#Array/String--Для строк-и-массивов)
+* [Array/Hash/String / Для строк, массивов и хешей](#ArrayHashString--Для-строк-массивов-и-хешей)
+* [Array/String / Для строк и массивов](#ArrayString--Для-строк-и-массивов)
 * [Array / Для массивов](#Array--Для-массивов)
 * [Hash / Для хешей](#Hash--Для-хешей)
 * [Undef](#Undef)
@@ -1599,7 +1599,7 @@ db.db_close(%db)
 * db_insert(db, class_id, data)                         # Вставить объект
 * db_select(db, obj_id)                                 # Прочитать объект
 * db_search(db, class_id, prop_name, value)             # Поиск объектов
-* db_multysearch                                        # Поиск объектов расширенный
+* db_multysearch(db, conditions)                        # Поиск объектов расширенный
 
 ### 📦 Installation / Установка
 ```bash
