@@ -19,36 +19,6 @@
 - Fixed-point arithmetic (64.32) / Арифметика с фиксированной точкой (64.32)
 - UTF-32 strings with O(1) indexed access / Строки UTF-32 с индексированным доступом O(1)
 
-## 📦 Installation / Установка
-```bash
-git clone https://github.com/denrav2019/Oyster-v0.6.0.git
-cd Oyster-v0.6.0
-make
-sudo make install
-```
-## Quick Start / Быстрый старт
-
-Create a file `hello.osf`: / Создайте файл `hello.osf` :
-
-`oyster print("Hello, Oyster!")`
-
-Then run / Затем запустите:
-
-```bash
-./oyster hello.osf          # compile and run / компиляция и запуск
-./oyster -c hello.osf       # compile only / только компиляция
-./oyster -s hello.osf       # compile with source comments / с исходными комментариями
-./oyster hello.oce          # run compiled bytecode / запуск скомпилированного
-```
-
-### Compiler Options / Опции компилятора
-* -c Compile only, without execution / Только компиляция, без выполнения
-* -s Add source lines as comments in bytecode / Добавлять исходные строки как комментарии
-* -e Extended mode (float, edecimal) / Расширенный режим
-* -o <file> Specify output file name / Указать имя выходного файла
-* -I <path> Add path to @INC for module search / Добавить путь в @INC
-* -h, --help Show help / Показать справку
-
 ## Example / Пример
 ```oyster
 use "io" as io
@@ -60,27 +30,6 @@ print("sin(&m.PI/2) = " + $result)
 ```
 
 # Oyster Language v0.6.0
-
-### Быстрый старт
-
-```bash
-# Сборка
-gcc -o oyster main.c compiler.c vm.c -lm -O2
-
-# Компиляция и запуск
-./oyster script.osf
-
-# Только компиляция
-./oyster -c script.osf
-
-# Компиляция с исходными комментариями в байт-коде
-./oyster -s script.osf
-
-# Расширенный режим (float, edecimal, postfix, методы)
-./oyster -e script.osf
-
-```
-
 ## Language Reference / Справочник языка
 * [Data Types / Типы данных](#Data-Types--Типы-данных)
 * [Variables / Переменные](#Variables--Переменные)
@@ -89,8 +38,11 @@ gcc -o oyster main.c compiler.c vm.c -lm -O2
 * [Functions / Функции](#Functions--Функции)
 * [Postfix Notation / Постфиксная запись выражений](#Postfix-Notation--Постфиксная-запись-выражений)
 * [Modules / Модули](#Modules--Модули)
+* [Compiler Options / Опции компилятора](#Compiler-Options--Опции-компилятора)
 * [Script exemples / Примеры программ](#Script-exemples--Примеры-программ)
 * [Stdlib](#Stdlib)
+* [Installation / Установка](#Installation--Установка)
+* [Quick Start / Быстрый старт](#Quick-Start--Быстрый-старт)
 
 ### Data Types / Типы данных
 * [V_NUMBER - основной числовой тип](#V_NUMBER---основной-числовой-тип)
@@ -800,6 +752,7 @@ print(len(@arr))           # 5 (элементов)
 %h = ("name" => "Oyster", "version" => "0.5.1")
 print(len(%h))             # 2 (пары ключ-значение)
 ```
+
 ##### clone(x)
 Клонировать
 Создаёт полную копию строки, массива или хеша. Возвращает новый объект, независимый от исходного на верхнем уровне. Изменения в клоне не влияют на оригинал.
@@ -895,6 +848,7 @@ $buf = bytearray(64)
 $x = set32($buf, 0, 65536)
 $val = get32($buf, 0)      # 65536
 ```
+
 ##### get64(var, index)
 Прочитать 8 байт. 
 Читает 8 байт (uint64, little-endian) из переменной var по смещению index. Используется для чтения идентификаторов, смещений и других 64-битных значений.
@@ -904,6 +858,7 @@ $buf = sysread($fh, 64)
 $id = get64($buf, 0)       # прочитать ID из заголовка записи
 $parent = get64($buf, 8)   # прочитать parent_id
 ```
+
 ##### set8(var, index, value)
 Записать 1 байт. 
 Записывает 1 байт (uint8) в переменную var по смещению index. Значение должно быть от 0 до 255.
@@ -913,6 +868,7 @@ $buf = bytearray(64)
 $x = set8($buf, 0, 65)     # записать 'A' (код 65)
 $x = set8($buf, 16, 1)     # записать тип свойства
 ```
+
 ##### set16(var, index, value)
 Записать 2 байта. 
 Записывает 2 байта (uint16, little-endian) в переменную var по смещению index. Значение должно быть от 0 до 65535.
@@ -921,6 +877,7 @@ $x = set8($buf, 16, 1)     # записать тип свойства
 $buf = bytearray(64)
 $x = set16($buf, 0, 0x1234)
 ```
+
 ##### set32(var, index, value)
 Записать 4 байта. 
 Записывает 4 байта (uint32, little-endian) в переменную var по смещению index. Часто используется для записи длины строки.
@@ -930,6 +887,7 @@ $buf = bytearray(64)
 $nlen = len("Oyster")
 $x = set32($buf, 16, $nlen)   # записать длину имени
 ```
+
 ##### set64(var, index, value)
 Записать 8 байт. 
 Записывает 8 байт (uint64, little-endian) в переменную var по смещению index. Используется для записи идентификаторов, смещений и других 64-битных значений.
@@ -994,6 +952,7 @@ print(@arr[0])    # 1
 # Исходный массив не изменился
 print(@arr[0])    # 5
 ```
+
 Примечание: reverse() и sort() возвращают новый массив, не изменяя исходный. Для изменения исходного массива присвойте результат обратно: @arr = sort(@arr).
 
 #### Hash / Для хешей
@@ -1025,6 +984,7 @@ $has_idx = exists(%light[1])         # 1 (индекс 1 существует)
 ##### haskeys(%h)
 Проверка наличия ключей. 
 Проверяет, есть ли в хеше хотя бы один ключ. Возвращает 1 если ключи есть (полный хеш), 0 если ключей нет (лёгкий хеш). Используется для определения типа хеша.
+
 ```oyster
 %full = (name => "Oyster")
 %light = ("one", "two")
@@ -1036,6 +996,7 @@ $hask = haskeys(%light)    # 0 (лёгкий хеш)
 ##### setkey(%h, old_key, new_key)
 Изменить ключ.
 Изменяет ключ old_key на new_key в хеше %h. Значение, связанное с ключом, сохраняется. Если старый ключ не найден, ничего не происходит.
+
 ```oyster
 %h = ("name" => "Oyster")
 setkey(%h, "name", "app_name")
@@ -1045,6 +1006,7 @@ setkey(%h, "name", "app_name")
 ##### getkey(%h, index)
 Получить ключ по индексу.
 Возвращает ключ хеша по его порядковому индексу. Для лёгкого хеша (без ключей) возвращает undef.
+
 ```oyster
 %h = ("name" => "Oyster", "version" => "0.5.1")
 $key0 = getkey(%h, 0)     # "name"
@@ -1054,6 +1016,7 @@ $key1 = getkey(%h, 1)     # "version"
 ##### hadd(%h, value, key?)
 Добавить элемент в хеш. 
 Добавляет элемент в хеш. Для лёгкого хеша (без ключей) добавляет только value. Для полного хеша добавляет пару key => value. Если ключ уже существует, значение заменяется.
+
 ```oyster
 # Лёгкий хеш
 %light = ("one", "two")
@@ -1067,6 +1030,7 @@ hadd(%full, "0.5.1", "version")   # добавляет/заменяет ключ
 ##### hdel(%h)
 Удалить последний элемент хеша. 
 Удаляет последний элемент хеша (и ключ, и значение). Уменьшает размер хеша на 1.
+
 ```oyster
 %h = ("a" => 1, "b" => 2, "c" => 3)
 hdel(%h)    # удаляет "c" => 3
@@ -1077,6 +1041,7 @@ hdel(%h)    # удаляет "c" => 3
 ##### hvalues(%h)
 Массив значений хеша - ссылка. 
 Возвращает массив всех значений хеша. Возвращает ссылку на внутренний массив значений — изменения в возвращённом массиве отразятся на хеше!
+
 ```oyster
 %h = ("name" => "Oyster", "version" => "0.5.1")
 @vals = hvalues(%h)
@@ -1096,10 +1061,10 @@ print(@keys[1])    # "version"
 Важно: hvalues() и hkeys() возвращают ссылку на внутренние данные хеша, а не копию. Изменение возвращённого массива напрямую изменит хеш. Это сделано для производительности. Для получения копии используйте clone(@arr).
 
 #### Undef
+`undef` — специальное значение, обозначающее «не определено». Используется для непроинициализированных переменных, отсутствующих ключей хеша, ошибочных результатов.
+
 * [undef(x)](#undefx)
 * [ifundef(x, default)](#ifundefx-default)
-
-`undef` — специальное значение, обозначающее «не определено». Используется для непроинициализированных переменных, отсутствующих ключей хеша, ошибочных результатов.
 
 ##### undef(x)
 Проверка на undef.
@@ -1494,6 +1459,15 @@ $x = &M.PI * 2
 * Modules are compiled cascadingly: when compiling the main file, all dependencies are found and compiled automatically.
 * Модули компилируются каскадно: при компиляции основного файла все зависимости находятся и компилируются автоматически.
 
+### Compiler Options / Опции компилятора
+* -c Compile only, without execution / Только компиляция, без выполнения
+* -s Add source lines as comments in bytecode / Добавлять исходные строки как комментарии
+* -e Extended mode (float, edecimal) / Расширенный режим
+* -o <file> Specify output file name / Указать имя выходного файла
+* -I <path> Add path to @INC for module search / Добавить путь в @INC
+* -h, --help Show help / Показать справку
+
+
 ### Script exemples / Примеры программ
 #### Factorial / Факториал
 ```oyster
@@ -1562,6 +1536,7 @@ while(!undef($line)) {
 
 sockclose($sock)
 ```
+
 ### Stdlib
 Библиотека станлартных модулей. Содержит модули
 * tk.osm — базовые функции Tcl/Tk
@@ -1569,8 +1544,8 @@ sockclose($sock)
 * db.osm — поддержка встроенной БД OysterDB
 
 #### OysterDB v0.1.0
-* Объектная БД с фиксированной длиной записей (64 байта)
-* Классы, свойства, объекты, значения
+* Объектная БД с фиксированной длиной записей (64 байта), доступ по ID
+* Классы, типизированные свойства, объекты, значения
 * Иерархия классов с наследованием свойств
 
 ##### 📚 OysterDB Quick Start
@@ -1626,14 +1601,22 @@ db.db_close(%db)
 * db_search(db, class_id, prop_name, value)             # Поиск объектов
 * db_multysearch                                        # Поиск объектов расширенный
 
-## Building from Source / Сборка из исходников
+### 📦 Installation / Установка
+```bash
+git clone https://github.com/denrav2019/Oyster-v0.6.0.git
+cd Oyster-v0.6.0
+make
+sudo make install
+```
+
+#### Building from Source / Сборка из исходников
 
 `make`  
 `make test`  
 `make install`  
 `make clean`
 
-## Dependencies / Зависимости
+#### Dependencies / Зависимости
 
 **Ubuntu/Debian:**  
 `sudo apt install build-essential libpcre2-dev`
@@ -1641,68 +1624,111 @@ db.db_close(%db)
 **Fedora/RHEL:**  
 `sudo dnf install gcc make pcre2-devel`
 
-## Author / Автор
+### Quick Start / Быстрый старт
+
+```bash
+# Сборка
+gcc -o oyster main.c compiler.c vm.c -lm -O2
+
+# Компиляция и запуск
+./oyster script.osf
+
+# Только компиляция
+./oyster -c script.osf
+
+# Компиляция с исходными комментариями в байт-коде
+./oyster -s script.osf
+
+# Расширенный режим (float, edecimal, postfix, методы)
+./oyster -e script.osf
+```
+
+Create a file `hello.osf`: / Создайте файл `hello.osf` :
+
+`oyster print("Hello, Oyster!")`
+
+Then run / Затем запустите:
+
+```bash
+./oyster hello.osf          # compile and run / компиляция и запуск
+./oyster -c hello.osf       # compile only / только компиляция
+./oyster -s hello.osf       # compile with source comments / с исходными комментариями
+./oyster hello.oce          # run compiled bytecode / запуск скомпилированного
+```
+
+### Author / Автор
 
 **Daniil Kranchev**  
 GitHub: [@denrav2019](https://github.com/denrav2019)  
 Email: nnikus2017@gmail.com
 
-## License / Лицензия
+### License / Лицензия
 
 MIT License - see the LICENSE file for details.
 
-## Acknowledgments / Благодарности
+### Acknowledgments / Благодарности
 
 - Perl - or inspiration / за вдохновение
 - Lua - for VM design concepts / за концепции дизайна VM
 - The open source community / сообществу открытого ПО
 
-## История релизов Oyster
-### Oyster 0.6.0 - встроенные функции для работы с USB и последовательным портом RS232, графический интерфейс (базовые функции Tcl/Tk)
+### Release History / История релизов Oyster
+#### Oyster 0.6.0 - встроенные функции для работы с USB и последовательным портом, графический интерфейс (базовые функции Tcl/Tk)
+Новое:
 
-✅ Раздельные таблицы переменных
+✅  Функции
+- serial_open($path, $baudrate, $databits, $parity, $stopbits) — open COM port / открыть COM-порт
+- serial_read($fh, $maxlen, $timeout_ms) — read with timeout / чтение с таймаутом
+- serial_close($fh) — close port / закрыть порт
+- popen2($cmd) — start process with bidirectional pipe / запустить процесс с двусторонним каналом
+- pipe_write($idx, $data) — write to process stdin / запись в stdin процесса
+- pipe_read($idx, $maxlen, $timeout_ms) — read from process stdout / чтение из stdout процесса
+- pipe_close($idx) — close pipes and terminate process / закрыть каналы и завершить процесс
+- round($x, $n, $mode) - decimal rounding / округление десятичных знаков
 
-✅ Модуль OysterDB
+✅ Модули
+- db.osm для поддержки OysterDB
+- tk.osm — базовые функции Tk для поддержки графического интерфейса GUI (Tcl/Tk)
+- ui.osm — widgets: окна, кнопки, таблицы, деревья
 
-✅ Serial-порты
-
-✅ Процессы и pipe
-
-✅ GUI (Tcl/Tk)
-
-✅ Функция round
+✅ Раздельные таблицы переменных в компиляторе
 
 ✅ Кэш модулей
 
-✅ Исправления
+Исправлено:
 
-### Oyster v0.5.1 — OysterDB
+✅ Исправлены inc/dec для локальных переменных
+
+✅ Исправлен len() для локальных массивов
+
+✅ Исправлен доступ к хешам в сравнениях
+
+✅ Исправлен вывод дробных чисел в print
+
+#### Oyster v0.5.1 — OysterDB
+Новое:
+
 ✅  OysterDB — встроенная объектная база данных
-- **Фиксированная длина записей** (64 байта) — быстрый O(1) доступ по ID
-- **Классы и свойства** — иерархия с наследованием
-- **Типизированные свойства** — number, string, object reference
-- **Бинарный формат** — `bytearray(n)`, `get*`/`set*`, `setstr`/`getstr`
-- **Формат data.dat** — `[len(4 байта)][строка]`
 
-✅  Новые функции
+✅  Функции
 - `bytearray(n)` — создание бинарного буфера
 - `gets()` — чтение строки со стандартного ввода
 - `setstr(buf, offset, str)` / `getstr(buf, offset, maxlen)` — строки в буферах
 - `writestr(fh, str)` / `readstr(fh)` — бинарный формат с длиной
 
-✅  Улучшения
-- Конкатенация строки с числом (`"Result: " + 42`)
-- Пробелы как разделители в литералах массивов `(1 2 3)`
-- `CallFrame.module` — внутренние функции модулей работают без экспорта
-- `my` для локальных переменных в функциях
+✅ Пробелы как разделители в литералах массивов `(1 2 3)`
 
-✅  Исправления
-- Конфликт опкодов `V` (inv/undef) — `inv` перенесён на `o`
-- `handle_concat` объединён с `handle_add`
-- `set64`/`set32`/`set8` как statement с `$x =`
-- `and` вместо `&&` в условиях
+✅  Конкатенация строки с числом (`"Result: " + 42`)
 
-### Oyster v0.5.0 — Сетевые функции
+Исправлено:
+
+✅ `my` для локальных переменных в функциях
+
+✅  `set64`/`set32`/`set8` как statement с `$x =`
+
+#### Oyster v0.5.0 — Сетевые функции
+Новое:
+
 ✅ socket(domain, type, protocol) — создать сокет
 
 ✅ connect(sock, host, port) — подключиться
@@ -1719,8 +1745,7 @@ MIT License - see the LICENSE file for details.
 
 ✅ sockclose(sock) — закрыть
 
-### Oyster v0.4.3 — Завершение функционала файловых функций и строковых функций с поддержкой Unicode
-
+#### Oyster v0.4.3 — Завершение функционала файловых функций и строковых функций с поддержкой Unicode
 Новое:
 
 ✅ index() — поддержка Unicode (UTF-32)
@@ -1738,9 +1763,18 @@ MIT License - see the LICENSE file for details.
 ✅ Файловые: feof, ftell, fseek, sysread, syswrite, frename, funlink
 
 
-### Oyster v0.4.2 — Расширенный функционал в массиве и хеше
-
+#### Oyster v0.4.2 — Расширенный функционал в массиве и хеше
 Новое:
+
+✅ get8/16/32/64(var, index) — чтение байт из ByteArray
+
+✅ set8/16/32/64(var, index, value) — запись байт в ByteArray
+
+✅ hvalues(%h) — массив значений хеша
+
+✅ hkeys(%h) — массив ключей хеша
+
+✅ Добавлен , в стоп-лист для @ и %
 
 ✅ get8/16/32/64(var, index) — чтение байт из ByteArray
 
@@ -1759,19 +1793,6 @@ MIT License - see the LICENSE file for details.
 ✅ Порядок аргументов в handle_get*
 
 ✅ val_number для get64
-Новое:
-
-✅ get8/16/32/64(var, index) — чтение байт из ByteArray
-
-✅ set8/16/32/64(var, index, value) — запись байт в ByteArray
-
-✅ hvalues(%h) — массив значений хеша
-
-✅ hkeys(%h) — массив ключей хеша
-
-✅ Добавлен , в стоп-лист для @ и %
-
-Исправлено:
 
 ✅ get_var_index для имён с запятой
 
@@ -1780,8 +1801,7 @@ MIT License - see the LICENSE file for details.
 ✅ val_number для get64
 
 
-### Oyster v0.4.1 — поддержка Unicode
-
+#### Oyster v0.4.1 — поддержка Unicode
 Новое:
 
 ✅ u"..." / u'...' — Unicode-строки (UTF-32 внутри)
@@ -1799,8 +1819,7 @@ MIT License - see the LICENSE file for details.
 ✅ Загрузка/сохранение .oce — строки с правильной длиной (без \0 обрезки)
 
 
-### Oyster v0.4.0 — завершённый функционал в основном режиме
-
+#### Oyster v0.4.0 — завершённый функционал в основном режиме
 Новое:
 
 ✅ Перенос postfix и методов в обычный режим (уже работали)
@@ -1826,7 +1845,7 @@ MIT License - see the LICENSE file for details.
 ✅ -k режим удалён из компилятора
 
 
-### Changelog Oyster v0.3.6 — Управление циклами и локальные переменные
+#### Changelog Oyster v0.3.6 — Управление циклами и локальные переменные
 Новое:
 
 ✅ last/next/redo во всех циклах (while, for in, for C-style)
@@ -1848,7 +1867,8 @@ MIT License - see the LICENSE file for details.
 ✅ Отложенный патчинг last_jumps и next_jumps для меток
 
 
-### Changelog Oyster v0.3.5 — Циклы, хеши и escape-последовательности
+#### Changelog Oyster v0.3.5 — Циклы, хеши и escape-последовательности
+Новое:
 
 ✅ for $x in @arr — цикл по массиву
     
@@ -1879,8 +1899,7 @@ MIT License - see the LICENSE file for details.
 ✅ sqrt() в print() — конфликт опкодов J
 
 
-### Changelog Oyster v0.3.4 — elseif и хеш-таблица пула строк
-
+#### Changelog Oyster v0.3.4 — elseif и хеш-таблица пула строк
 Новое:
 
 ✅ elseif — каскадные условия (полноценный if/elseif/else)
@@ -1904,8 +1923,7 @@ MIT License - see the LICENSE file for details.
 ✅ else if — не поддерживается, только elseif
 
 
-### Changelog Oyster v0.3.3 — Математика и файлы
-
+#### Changelog Oyster v0.3.3 — Математика и файлы
 Новое:
 
 ✅ Регистронезависимый синтаксис
@@ -1939,7 +1957,7 @@ MIT License - see the LICENSE file for details.
 ✅ handle_deallocate — дублирующийся V_HASH
 
 
-### Changelog Oyster v0.3.2 — Пул строк
+#### Changelog Oyster v0.3.2 — Пул строк
 Новое:
 
 ✅ Поиск дубликатов в str_pool_buf (устранение повторов строк в .oce)
@@ -1953,7 +1971,7 @@ MIT License - see the LICENSE file for details.
 ✅ parse_term — восстановлено тело цикла (было пустым)
 
 
-### Changelog Oyster v0.3.1 — Функции и строки
+#### Changelog Oyster v0.3.1 — Функции и строки
 Новое:
 
 ✅ fun с параметрами и возвратом значений
@@ -1987,7 +2005,7 @@ MIT License - see the LICENSE file for details.
 ✅ Stack underflow после возврата из основного модуля
 
 
-### Changelog v0.2.0 — Модульная система и компилятор:
+#### Changelog v0.2.0 — Модульная система и компилятор:
 Новое:
 
 ✅ Прямой формат ТДФ (<f:add:math:02:02:00000000:1>) — без индексов в пуле строк
