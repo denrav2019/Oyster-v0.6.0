@@ -207,11 +207,11 @@ $area = &M.PI * $radius * $radius
 ```
 
 ### Operators / Операторы
-* Arithmetic
-* Comparison
-* Logical
-* Bit
-* Control Flow
+* [Arithmetic / Арифметические](#Arithmetic--Арифметические)
+* [Comparison / Сравнения](#Comparison--Сравнения)
+* [Logical / Логические](#Logical--Логические)
+* [Bit / Битовые](#Bit--Битовые)
+* [Control Flow / Управляющие конструкции](#Control-Flow--Управляющие-конструкции)
 
 #### Arithmetic / Арифметические
 * \+    # Сложение/конкатенация строк (автоматически преобразует число в строку при конкатенации со строкой)
@@ -251,9 +251,9 @@ $pi = "Pi = " + 3.14            # "Pi = 3.14"
 * \>>   #Сдвиг вправо
 
 #### Control Flow / Управляющие конструкции
-* [if / elseif / else](#if-elseif-else)
-* [Тернарный оператор ? :](#ternary-тернарный-оператор)
-* [Loops / Циклы (while / for (C-style) / for (in-style))](#loops-циклы)
+* [if / elseif / else](#if--elseif--else)
+* [Тернарный оператор ? :](#ternary--тернарный-оператор)
+* [Loops / Циклы (while / for (C-style) / for (in-style))](#loops--циклы)
 
 #### if / elseif / else:
 
