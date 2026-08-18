@@ -81,6 +81,8 @@ gcc -o oyster main.c compiler.c vm.c -lm -O2
 
 ```
 
+
+
 ### Data Types / Типы данных
 
 #### V_NUMBER (основной числовой тип)
@@ -205,6 +207,12 @@ $area = &M.PI * $radius * $radius
 ```
 
 ### Operators / Операторы
+* Arithmetic
+* Comparison
+* Logical
+* Bit
+* Control Flow
+
 #### Arithmetic / Арифметические
 * \+    # Сложение/конкатенация строк (автоматически преобразует число в строку при конкатенации со строкой)
 ```oyster
@@ -234,7 +242,7 @@ $pi = "Pi = " + 3.14            # "Pi = 3.14"
 * or    # Логическое ИЛИ
 * not   # Логическое НЕ
 
-#### Битовые
+#### Bit / Битовые
 * &     # Битовое И
 * \|    # Битовое ИЛИ
 * ^^    # Битовое XOR
@@ -243,14 +251,9 @@ $pi = "Pi = " + 3.14            # "Pi = 3.14"
 * \>>   #Сдвиг вправо
 
 #### Control Flow / Управляющие конструкции
-* if / elseif / else
-* Тернарный оператор ? :
-* while
-* for (C-style)
-* for (in-style)
-* last
-* next
-* redo
+* [if / elseif / else](#if-elseif-else)
+* [Тернарный оператор ? :](#ternary-тернарный-оператор)
+* [Loops / Циклы (while / for (C-style) / for (in-style))](#loops-циклы)
 
 #### if / elseif / else:
 
@@ -272,8 +275,12 @@ $max = ($a > $b) ? $a : $b
 ```
 
 #### Loops / Циклы
+* [while](#while)
+* [for (C-style)](#for-c-style)
+* [for (in-style)](#for-in-style)
+* [last / next / redo](#loop-control-управление-циклом)
 
-while:
+##### while:
 ```oyster
 $i = 0
 while ($i < 10) {
@@ -282,14 +289,14 @@ while ($i < 10) {
 }
 ```
 
-for (C-style):
+##### for (C-style):
 ```oyster
 for ($i = 0; $i < 10; $i = $i + 1) {
     print($i)
 }
 ```
 
-for (in-style):
+##### for (in-style):
 ```oyster
 @array = (0 1 2 3 4 5 6 7 8 9)
 for $item in @array {
@@ -297,7 +304,7 @@ for $item in @array {
 }
 ```
 
-#### Loop Control / Управление циклом
+##### Loop Control / Управление циклом
 * last      # exit loop / выход из цикла
 * next      # next iteration / следующая итерация
 * redo      # repeat current iteration / повтор текущей итерации
@@ -711,9 +718,9 @@ print("You entered: " + $line)
 ```
 
 #### Array/Hash/String / Для строк, массивов и хешей
-* len(@arr)	            # Длина
-* clone(@x)             # Клонировать
-* deallocate(@x)	      # Освободить память
+* [len(@arr)](#lenx)
+* [clone(@x)](#conex)
+* [deallocate(@x)](#deallocatex)
 Эти функции работают с любым типом данных, основанным на `ByteArray`: строки (включая Unicode), массивы и хеши.
 
 ##### len(x)
@@ -787,8 +794,17 @@ deallocate(%h)              # освобождаем хеш и все его с�
 Важно: Oyster не имеет автоматического сборщика мусора. Используйте deallocate() для освобождения памяти, когда данные больше не нужны, особенно при работе с большими массивами, строками или хешами.
 
 #### Array/String / Для строк и массивов
-* get8/16/32/64(var, index)         # Чтение байт из ByteArray
-* set8/16/32/64(var, index, value)  # Запись байт в ByteArray
+Чтение байт из ByteArray
+* [get8(var, index)](#get8var-index)
+* [get16(var, index)](#get16var-index)
+* [get32(var, index)](#get32var-index)
+* [get64(var, index)](#get64var-index)
+
+Запись байт в ByteArray
+* [set8(var, index, value)](#set8var-index-value)
+* [set16(var, index, value)](#set16var-index-value)
+* [set32(var, index, value)](#set32var-index-value)
+* [set64(var, index, value)](#set64var-index-value)
 
 Эти функции позволяют читать и записывать отдельные байты в строках и массивах. Работают с любым `ByteArray`: строки, массивы, хеши (через `hvalues()`/`hkeys()`).
 Все значения хранятся в little-endian порядке (младший байт первым).
@@ -868,12 +884,6 @@ $x = set64($buf, 8, $class_id) # записать class_id
 $x = set64($buf, 24, $offset)  # записать смещение в data.dat
 ```
 
-##### Записать в файл
-```oyster
-fseek($fh, $id * 64, 0)
-syswrite($fh, $buf)
-```
-
 Порядок байт (endianness)
 Все многобайтовые значения (get16, get32, get64, set16, set32, set64) хранятся в little-endian порядке: младший байт первым.
 
@@ -887,8 +897,8 @@ $val = get32($buf, 0)      # 0x12345678 (305419896)
 ```
 
 #### Array / Для массивов
-* revers(@arr)	        # Перевернуть массив
-* sort(@arr)	          # Отсортировать массив
+* [revers(@arr)](#reversarr)
+* [sort(@arr)](#sortarr)
 
 ##### reverse(@arr)
 Перевернуть массив
@@ -934,14 +944,14 @@ print(@arr[0])    # 5
 - **Полный хеш** — с ключами (строковыми), создаётся через `(key => value, ...)`
 - **Лёгкий хеш** — без ключей, только значения, создаётся через `(val1, val2, ...)` или `array(n)`
 
-* exists(%hash, "key")
-* haskeys(%h)
-* setkey(%h, old_key, new_key)
-* getkey(%h, index)
-* hadd(%h, value, key?)
-* hdel(%h)
-* hvalues(%h)
-* hkeys(%h)
+* [exists(%hash, "key")](#existshash-key)
+* [haskeys(%h)](#haskeysh)
+* [setkey(%h, old_key, new_key)](#setkeyh-old_key-new_key)
+* [getkey(%h, index)](#getkeyh-index)
+* [hadd(%h, value, key?)](#haddh-value-key)
+* [hdel(%h)](#hdelh)
+* [hvalues(%h)](#hvaluesh)
+* [hkeys(%h)](#hkeys)
 
 ##### exists(%hash, "key")
 Проверка существования ключа. 
@@ -1029,12 +1039,13 @@ print(@keys[1])    # "version"
 Важно: hvalues() и hkeys() возвращают ссылку на внутренние данные хеша, а не копию. Изменение возвращённого массива напрямую изменит хеш. Это сделано для производительности. Для получения копии используйте clone(@arr).
 
 #### Undef
-* undef(x)              # Проверка: 1 если x — undef
-* ifundef(x, default)   # x если не undef, иначе default
+* [undef(x)](#undefx)
+* [ifundef(x, default)](#ifundefx-default)
 
 `undef` — специальное значение, обозначающее «не определено». Используется для непроинициализированных переменных, отсутствующих ключей хеша, ошибочных результатов.
 
 ##### `undef(x)` — Проверка на undef
+Проверка: 1 если x — undef
 Проверяет, является ли значение `x` неопределённым. Возвращает `1` если `x` — `undef`, `0` в противном случае.
 
 ```oyster
@@ -1057,7 +1068,7 @@ if(undef($fh)) {
 ```
 
 ##### `ifundef(x, default)` — замена если undef
-
+x если не undef, иначе default
 Возвращает x если оно определено (не undef), иначе возвращает default. Удобно для установки значений по умолчанию.
 
 ```oyster
@@ -1209,13 +1220,14 @@ funlink("temp.txt")
 
 #### Net / Сетевые
 Сетевые функции работают с сокетами. Сокеты создаются через `socket()` и возвращают целочисленный дескриптор (аналогично файловым дескрипторам).
-* socket(domain, type, protocol)
-* bind(sock, host, port)
-* listen(sock, backlog)
-* accept(sock)
-* send(sock, data)
-* recv(sock, len)
-* sockclose(sock)
+* [socket(domain, type, protocol)](#socketdomain-type-protocol)
+* [connect(sock, host, port)](#connectsock-host-port)
+* [bind(sock, host, port)](#bindsock-host-port)
+* [listen(sock, backlog)](#listensock-backlog)
+* [accept(sock)](#acceptsock)
+* [send(sock, data)](#sendsock-data)
+* [recv(sock, len)](#sock-len)
+* [sockclose(sock)](#sockclosesock)
 
 ##### socket(domain, type, protocol)
 Создать сокет. Создаёт сокет и возвращает его дескриптор (целое число). При ошибке возвращает `-1`.
@@ -1284,9 +1296,9 @@ sockclose($srv)
 ```
 
 #### Последовательные порты
-* serial_open($path, $baudrate, $databits, $parity, $stopbits)
-* serial_read($fh, $maxlen, $timeout_ms)
-* serial_close($fh)
+* [serial_open($path, $baudrate, $databits, $parity, $stopbits)](#serial_openpath-baudrate-databits-parity-stopbits)
+* [serial_read($fh, $maxlen, $timeout_ms)](#serial_readfh-maxlen-timeout_ms)
+* [serial_close($fh)](#serial_closefh)
 
 ##### serial_open($path, $baudrate, $databits, $parity, $stopbits)
 Открывает последовательный порт и настраивает его параметры.
@@ -1336,9 +1348,10 @@ serial_close($fh)
 ```
 
 #### Процессы и pipe
-* popen2($cmd)
-* pipe_write($idx, $data)
-* pipe_write($proc, "puts Hello" + chr(10))
+* [popen2($cmd)](#popen2cmd)
+* [pipe_write($idx, $data)](#pipe_writeidx-data)
+* [pipe_read($idx, $maxlen, $timeout_ms)](#pipe_readidx-maxlen-timeout_ms)
+* [pipe_close($idx)](#pipe_closeidx)
 
 ##### popen2($cmd)
 Запускает процесс с двусторонним каналом обмена (pipe).
