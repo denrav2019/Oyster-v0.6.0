@@ -87,6 +87,10 @@ gcc -o oyster main.c compiler.c vm.c -lm -O2
 * [Constants / Константы](#Constants--Константы)
 * [Operators / Операторы](#Operators--Операторы)
 * [Functions / Функции](#Functions--Функции)
+* [Postfix Notation / Постфиксная запись выражений](#Postfix-Notation--Постфиксная-запись-выражений)
+* [Modules / Модули](#Modules--Модули)
+* [Примеры программ](#Script-exemples--Примеры-программ)
+* [Stdlib](#Stdlib)
 
 ### Data Types / Типы данных
 * [V_NUMBER - основной числовой тип](#V_NUMBER---основной-числовой-тип)
@@ -140,7 +144,7 @@ $len = len(@arr)    # 4
 @items = ("one" "two" "three")  # эквивалентно ("one", "two", "three")
 ```
 
-#### V_HASH -хеш
+#### V_HASH - хеш
 * Hash on linked segments. Keys are strings, values are any type.
 * Хеш на связных сегментах. Ключи — строки, значения — любые типы.
 
@@ -1097,7 +1101,8 @@ print(@keys[1])    # "version"
 
 `undef` — специальное значение, обозначающее «не определено». Используется для непроинициализированных переменных, отсутствующих ключей хеша, ошибочных результатов.
 
-##### `undef(x)` — Проверка на undef
+##### undef(x)
+Проверка на undef.
 Проверка: 1 если x — undef
 Проверяет, является ли значение `x` неопределённым. Возвращает `1` если `x` — `undef`, `0` в противном случае.
 
@@ -1120,8 +1125,9 @@ if(undef($fh)) {
 }
 ```
 
-##### `ifundef(x, default)` — замена если undef
-x если не undef, иначе default
+##### ifundef(x, default)
+Замена если undef.
+x если не undef, иначе default.
 Возвращает x если оно определено (не undef), иначе возвращает default. Удобно для установки значений по умолчанию.
 
 ```oyster
@@ -1488,7 +1494,7 @@ $x = &M.PI * 2
 * Modules are compiled cascadingly: when compiling the main file, all dependencies are found and compiled automatically.
 * Модули компилируются каскадно: при компиляции основного файла все зависимости находятся и компилируются автоматически.
 
-### Примеры программ
+### Script exemples / Примеры программ
 #### Factorial / Факториал
 ```oyster
 fun factorial($n) {
@@ -1556,18 +1562,18 @@ while(!undef($line)) {
 
 sockclose($sock)
 ```
-## Stdlib
+### Stdlib
 Библиотека станлартных модулей. Содержит модули
 * tk.osm — базовые функции Tcl/Tk
 * ui.osm — элементы: окна, кнопки, таблицы, деревья
 * db.osm — поддержка встроенной БД OysterDB
 
-## OysterDB v0.1.0
+#### OysterDB v0.1.0
 * Объектная БД с фиксированной длиной записей (64 байта)
 * Классы, свойства, объекты, значения
 * Иерархия классов с наследованием свойств
 
-### 📚 OysterDB Quick Start
+##### 📚 OysterDB Quick Start
 
 ```oyster
 use "db" as db
@@ -1601,7 +1607,7 @@ print("Found: " + len(@found))
 db.db_close(%db)
 ```
 
-### 🗂️ Структура OysterDB
+##### 🗂️ Структура OysterDB
 Файл	           Формат записи	                                                    Описание
 class.dat        [id(8)][parent_id(8)][name_len(4)][name(44)]	                      Классы
 property.dat	   [id(8)][class_id(8)][value_class_id(8)][name_len(4)][name(40)]     Свойства
@@ -1609,7 +1615,7 @@ object.dat       [id(8)][class_id(8)][padding(48)]	                             
 value.dat	       [id(8)][object_id(8)][property_id(8)][data_offset(8)][padding(32)] Значения
 data.dat	       [len(4)][строка][len(4)][строка]...	                              Строковые данные
 
-### 🔧 API OysterDB
+##### 🔧 API OysterDB
 * db_open(path)                                         # Открыть/создать БД
 * db_close(db)	                                        # Закрыть БД
 * db_create_class(db, name, parent_id)                  # Создать класс
