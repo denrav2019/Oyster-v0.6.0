@@ -40,7 +40,7 @@ print("sin(&m.PI/2) = " + $result)
 * [Modules / Модули](#Modules--Модули)
 * [Compiler Options / Опции компилятора](#Compiler-Options--Опции-компилятора)
 * [Script exemples / Примеры программ](#Script-exemples--Примеры-программ)
-* [Stdlib](#Stdlib)
+* [Stdlib / Библиотека станлартных модулей](#Stdlib--Библиотека-станлартных-модулей)
 * [Installation / Установка](#Installation--Установка)
 * [Quick Start / Быстрый старт](#Quick-Start--Быстрый-старт)
 
@@ -1535,7 +1535,7 @@ sockclose($sock)
 ```
 
 ### Stdlib / Библиотека станлартных модулей
-Библиотека станлартных модулей. Содержит модули:
+Содержит модули:
 * tk.osm — базовые функции Tcl/Tk
 * ui.osm — элементы: окна, кнопки, таблицы, деревья
 * db.osm — поддержка встроенной БД OysterDB
