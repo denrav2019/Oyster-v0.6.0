@@ -89,7 +89,7 @@ gcc -o oyster main.c compiler.c vm.c -lm -O2
 * [Functions / Функции](#Functions--Функции)
 * [Postfix Notation / Постфиксная запись выражений](#Postfix-Notation--Постфиксная-запись-выражений)
 * [Modules / Модули](#Modules--Модули)
-* [Примеры программ](#Script-exemples--Примеры-программ)
+* [Script exemples / Примеры программ](#Script-exemples--Примеры-программ)
 * [Stdlib](#Stdlib)
 
 ### Data Types / Типы данных
@@ -1608,12 +1608,12 @@ db.db_close(%db)
 ```
 
 ##### 🗂️ Структура OysterDB
-Файл	           Формат записи	                                                    Описание
-class.dat        [id(8)][parent_id(8)][name_len(4)][name(44)]	                      Классы
-property.dat	   [id(8)][class_id(8)][value_class_id(8)][name_len(4)][name(40)]     Свойства
-object.dat       [id(8)][class_id(8)][padding(48)]	                                Объекты
-value.dat	       [id(8)][object_id(8)][property_id(8)][data_offset(8)][padding(32)] Значения
-data.dat	       [len(4)][строка][len(4)][строка]...	                              Строковые данные
+
+* class.dat - Классы
+* property.dat - Свойства
+* object.dat - Объекты
+* value.dat - Значения
+* data.dat - Строковые данные
 
 ##### 🔧 API OysterDB
 * db_open(path)                                         # Открыть/создать БД
@@ -1658,7 +1658,7 @@ MIT License - see the LICENSE file for details.
 - The open source community / сообществу открытого ПО
 
 ## История релизов Oyster
-## Oyster 0.6.0 - встроенные функции для работы с USB и последовательным портом RS232, графический интерфейс (базовые функции Tcl/Tk)
+### Oyster 0.6.0 - встроенные функции для работы с USB и последовательным портом RS232, графический интерфейс (базовые функции Tcl/Tk)
 
 ✅ Раздельные таблицы переменных
 
@@ -1676,7 +1676,7 @@ MIT License - see the LICENSE file for details.
 
 ✅ Исправления
 
-## Oyster v0.1.0 — OysterDB
+### Oyster v0.5.1 — OysterDB
 ✅  OysterDB — встроенная объектная база данных
 - **Фиксированная длина записей** (64 байта) — быстрый O(1) доступ по ID
 - **Классы и свойства** — иерархия с наследованием
