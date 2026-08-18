@@ -89,12 +89,12 @@ gcc -o oyster main.c compiler.c vm.c -lm -O2
 * [Functions / Функции](#Functions--Функции)
 
 ### Data Types / Типы данных
-[V_NUMBER - основной числовой тип](#V_NUMBER-основной-числовой-тип)
-[V_STRING - строка](#V_STRING-строка)
-[V_ARRAY - массив](#V_ARRAY-массив)
-[V_HASH - хеш](#V_HASH-хеш)
-[V_UNDEF - неопределённое значение](#V_UNDEF-неопределённое-значение)
-[V_FLOAT - планируется для -e режима](#V_FLOAT-планируется-для--e-режима)
+[V_NUMBER - основной числовой тип](#V_NUMBER---основной-числовой-тип)
+[V_STRING - строка](#V_STRING---строка)
+[V_ARRAY - массив](#V_ARRAY---массив)
+[V_HASH - хеш](#V_HASH---хеш)
+[V_UNDEF - неопределённое значение](#V_UNDEF---неопределённое-значение)
+[V_FLOAT - планируется для -e режима](#V_FLOAT---планируется-для--e-режима)
 
 #### V_NUMBER - основной числовой тип
 * 64.32 fixed point. 64-bit integer part, 32-bit fractional part. Provides exact decimal fractions.
