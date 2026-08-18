@@ -81,9 +81,20 @@ gcc -o oyster main.c compiler.c vm.c -lm -O2
 
 ```
 
-
+## Language Reference / Справочник языка
+* [Data Types / Типы данных](#Data-Types--Типы-данных)
+* [Variables / Переменные](#Variables--Переменные)
+* [Constants / Константы](#Constants--Константы)
+* [Operators / Операторы](#Operators--Операторы)
+* [Functions / Функции](#Functions--Функции)
 
 ### Data Types / Типы данных
+[V_NUMBER (основной числовой тип)](#V_NUMBER-основной-числовой-тип)
+[V_STRING (строка)](#V_STRING-строка)
+[V_ARRAY (массив)](#V_ARRAY-массив)
+[V_HASH (хеш)](#V_HASH-хеш)
+[V_UNDEF (неопределённое значение)](#V_UNDEF-неопределённое-значение)
+[V_FLOAT (планируется для -e режима)](#V_FLOAT-планируется-для--e-режима)
 
 #### V_NUMBER (основной числовой тип)
 * 64.32 fixed point. 64-bit integer part, 32-bit fractional part. Provides exact decimal fractions.
@@ -95,7 +106,7 @@ $y = 3.14        # with fractional part / с дробной частью
 $z = 0.1 + 0.2   # 0.3 (exact! / точно!)
 ```
 
-#### V_STRING
+#### V_STRING (строка)
 * Strings in double or single quotes, based on ByteArray.
 * Строки в двойных или одинарных кавычках на основе ByteArray.
 
@@ -112,7 +123,7 @@ $unistring = u"My unicode string" + u" с кириллицей" # Unicode define
 
 ```
 
-#### V_ARRAY
+#### V_ARRAY (массив)
 * Fixed-length arrays based on ByteArray. Zero-based indexing.
 * Массивы фиксированной длины на основе ByteArray. Индексация с 0.
 
@@ -129,7 +140,7 @@ $len = len(@arr)    # 4
 @items = ("one" "two" "three")  # эквивалентно ("one", "two", "three")
 ```
 
-#### V_HASH
+#### V_HASH (хеш)
 * Hash on linked segments. Keys are strings, values are any type.
 * Хеш на связных сегментах. Ключи — строки, значения — любые типы.
 
@@ -150,7 +161,7 @@ print(%hash)
 %hash = array(3)
 ```
 
-#### V_UNDEF
+#### V_UNDEF (неопределённое значение)
 * Undefined value. Used for uninitialized variables.
 * Неопределённое значение. Используется для непроинициализированных переменных.
 
@@ -169,21 +180,50 @@ $y = $x.sqrt()
 
 
 ### Variables / Переменные
+В Oyster переменные обозначаются префиксами:
+
 ```oyster
-$var — scalar / скалярная переменная
+$var — scalar / скалярная переменная (число, строка)
+$x = 10
 
 @arr — array / массив
+@arr = (1, 2, 3)
 
-%hash — hash / ххеш
+%hash — hash / хеш
+%h = ("a" => 1)
 ```
 
 * Variables are created on first assignment:
 * Переменные создаются при первом присваивании:
 
 ```oyster
+$x = 100
+@items = ("apple", "banana")
+%config = ("debug" => 1)
+```
+
+Локальные переменные
+Объявляются только внутри функций через my:
+
+```oyster
+fun calc($a, $b) {
+    my $sum = $a + $b
+    my $temp = $sum * 2
+    return $temp
+}
+```
+
+Присваивание
+```oyster
 $x = 42
-@data = (1, 2, 3)
-%config = ('debug' => 1)
+$x = "hello"
+$x = $a + $b
+```
+
+Инкремент/декремент
+```oyster
+inc($x)    # $x = $x + 1
+dec($x)    # $x = $x - 1
 ```
 
 ### Constants / Константы
@@ -320,6 +360,9 @@ OUTER: while ($i < 10) {
 ```
 
 ### Functions / Функции
+* User-defined / Пользовательские
+* Built-in Functions / Встроенные функции
+
 #### User-defined / Пользовательские
 
 Определение функции:
@@ -370,10 +413,21 @@ Method chains / Цепочки методов:
 $result = $a.abs().sqrt().int()
 ```
 
-
 #### Built-in Functions / Встроенные функции
+* [Print / Печать](#Print--Печать)
+* [Math / Математические](#Math--Математические)
+* [String / Строковые](#String--Строковые)
+* [Array/Hash/String / Для строк, массивов и хешей](#Array/Hash/String--Для-строк-массивов-и-хешей)
+* [Array/String / Для строк и массивов](#Array/String--Для строк-и-массивов)
+* [Array / Для массивов](#Array--Для-массивов)
+* [Hash / Для хешей](#Hash--Для-хешей)
+* [Undef](#Undef)
+* [File / Файловые](#File--Файловые)
+* [Net / Сетевые](#Net--Сетевые)
+* [Serial Ports / Последовательные порты](#Serial-Ports--Последовательные-порты)
+* [Processes and Pipes / Процессы и pipe](#Processes-and-Pipes--Процессы-и-pipe)
 
-##### Печать
+##### Print / Печать
 ```oyster
 print("Hello, World!")
 ```
@@ -891,7 +945,7 @@ $x = set64($buf, 24, $offset)  # записать смещение в data.dat
 $buf = bytearray(4)
 $x = set32($buf, 0, 0x12345678)
 ```
-##### Байты в буфере: 78 56 34 12 (little-endian)
+Байты в буфере: 78 56 34 12 (little-endian)
 ```oyster
 $val = get32($buf, 0)      # 0x12345678 (305419896)
 ```
@@ -1295,7 +1349,7 @@ $result = sockclose($cli)
 sockclose($srv)
 ```
 
-#### Последовательные порты
+#### Serial Ports / Последовательные порты
 * [serial_open($path, $baudrate, $databits, $parity, $stopbits)](#serial_openpath-baudrate-databits-parity-stopbits)
 * [serial_read($fh, $maxlen, $timeout_ms)](#serial_readfh-maxlen-timeout_ms)
 * [serial_close($fh)](#serial_closefh)
@@ -1347,7 +1401,7 @@ if($data != "") {
 serial_close($fh)
 ```
 
-#### Процессы и pipe
+#### Processes and Pipes / Процессы и pipe
 * [popen2($cmd)](#popen2cmd)
 * [pipe_write($idx, $data)](#pipe_writeidx-data)
 * [pipe_read($idx, $maxlen, $timeout_ms)](#pipe_readidx-maxlen-timeout_ms)
