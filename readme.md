@@ -89,14 +89,14 @@ gcc -o oyster main.c compiler.c vm.c -lm -O2
 * [Functions / Функции](#Functions--Функции)
 
 ### Data Types / Типы данных
-[V_NUMBER (основной числовой тип)](#V_NUMBER-основной-числовой-тип)
-[V_STRING (строка)](#V_STRING-строка)
-[V_ARRAY (массив)](#V_ARRAY-массив)
-[V_HASH (хеш)](#V_HASH-хеш)
-[V_UNDEF (неопределённое значение)](#V_UNDEF-неопределённое-значение)
-[V_FLOAT (планируется для -e режима)](#V_FLOAT-планируется-для--e-режима)
+[V_NUMBER - основной числовой тип](#V_NUMBER-основной-числовой-тип)
+[V_STRING - строка](#V_STRING-строка)
+[V_ARRAY - массив](#V_ARRAY-массив)
+[V_HASH - хеш](#V_HASH-хеш)
+[V_UNDEF - неопределённое значение](#V_UNDEF-неопределённое-значение)
+[V_FLOAT - планируется для -e режима](#V_FLOAT-планируется-для--e-режима)
 
-#### V_NUMBER (основной числовой тип)
+#### V_NUMBER - основной числовой тип
 * 64.32 fixed point. 64-bit integer part, 32-bit fractional part. Provides exact decimal fractions.
 * 64.32 fixed point. Целая часть — 64 бита, дробная — 32 бита. Обеспечивает точные десятичные дроби.
 
@@ -106,7 +106,7 @@ $y = 3.14        # with fractional part / с дробной частью
 $z = 0.1 + 0.2   # 0.3 (exact! / точно!)
 ```
 
-#### V_STRING (строка)
+#### V_STRING - строка
 * Strings in double or single quotes, based on ByteArray.
 * Строки в двойных или одинарных кавычках на основе ByteArray.
 
@@ -123,7 +123,7 @@ $unistring = u"My unicode string" + u" с кириллицей" # Unicode define
 
 ```
 
-#### V_ARRAY (массив)
+#### V_ARRAY - массив
 * Fixed-length arrays based on ByteArray. Zero-based indexing.
 * Массивы фиксированной длины на основе ByteArray. Индексация с 0.
 
@@ -140,7 +140,7 @@ $len = len(@arr)    # 4
 @items = ("one" "two" "three")  # эквивалентно ("one", "two", "three")
 ```
 
-#### V_HASH (хеш)
+#### V_HASH -хеш
 * Hash on linked segments. Keys are strings, values are any type.
 * Хеш на связных сегментах. Ключи — строки, значения — любые типы.
 
@@ -161,7 +161,7 @@ print(%hash)
 %hash = array(3)
 ```
 
-#### V_UNDEF (неопределённое значение)
+#### V_UNDEF - неопределённое значение
 * Undefined value. Used for uninitialized variables.
 * Неопределённое значение. Используется для непроинициализированных переменных.
 
@@ -170,14 +170,13 @@ $x = undef($y)           # check if undef / проверка на undef
 $z = ifundef($maybe, 0)  # replace if undef / замена если undef
 ```
 
-#### V_FLOAT (планируется для -e режима)
+#### V_FLOAT - планируется для -e режима
 IEEE 754 double. Для совместимости с аппаратной арифметикой.
 
 ```oyster
 $x = 3.14f
 $y = $x.sqrt()
 ```
-
 
 ### Variables / Переменные
 В Oyster переменные обозначаются префиксами:
